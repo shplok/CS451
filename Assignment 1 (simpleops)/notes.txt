@@ -37,9 +37,15 @@ that's all that I did.
 
 [Problem 4 (Conditional Expression)]
 
-Goal: ...
+Goal: Add implementation and support of conditional expressions of the form (e ? e1 : e2).
 
-Approach: ...
+Approach: I was quite lost at first how to approach this, so I initially ran the compiler on the program to see where 
+that would get me. I noticed that I needed to add token values for the conditionals, so I started with that. 
+Next, I went over to scanner and added the cases for the conditionals. Then, after that, I went into 
+JConditionalExpression to add important context for the operators. I first made sure that the type checking was correct,
+and then added the codegen info, just like the previous questions. Then I looked at parser. I noticed that there was
+a conditionaland statement already, so I copied and edited that, and then changed the assignemnt expression function to
+allow for conditional, not conditionaland.
 
 [Problem 5 (Do Statement)]
 
@@ -57,4 +63,6 @@ Source                               Help Received
 3. List any other comments here. Feel free to provide any feedback on how much you learned from
 doing the assignment, and whether you enjoyed doing it.
 
-...
+This was a tough assignemnt, I think maybe a little more guidance in the descriptions of the later problems would be
+appreciated, though not needed. Thanks! I had a fun time weeding through all of the files, I'm not used to such a large
+codebase!
