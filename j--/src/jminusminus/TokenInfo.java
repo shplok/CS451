@@ -266,10 +266,9 @@ enum TokenKind {
     REM("%");
 
     // /**
-    //  * Unary Addition Operator
+    //  * Unary Addition Operator ? I don't think it's needed.
     //  */
-    // JUnaryPlusOp("")
-
+    
 
     // The token kind's string representation.
     private final String image;
