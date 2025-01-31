@@ -649,7 +649,7 @@ class Parser {
      */
     private JExpression assignmentExpression() {
         int line = scanner.token().line();
-        JExpression lhs = conditionalAndExpression();
+        JExpression lhs = conditionalExpression();
         if (have(ASSIGN)) {
             return new JAssignOp(line, lhs, assignmentExpression());
         } else if (have(PLUS_ASSIGN)) {
@@ -658,6 +658,28 @@ class Parser {
             return lhs;
         }
     }
+
+    /**
+    * Parses a conditional expression and returns an AST for it.
+     *
+     * <pre>
+     *   conditionalExpression ::= conditionalAndExpression 
+     *       [ QUESTION expression COLON conditionalExpression ]
+     * </pre>
+     *
+     * @return an AST for a conditional expression.
+     */
+    private JExpression conditionalExpression() {
+        int line = scanner.token().line();
+        JExpression lhs = conditionalAndExpression();
+        if (have(QUESTION)) {
+            JExpression thenPart = expression();
+            mustBe(COLON);
+            JExpression elsePart = conditionalExpression();
+            return new JConditionalExpression(line, lhs, thenPart, elsePart);
+        }
+        return lhs;
+}
 
     /**
      * Parses a conditional-and expression and returns an AST for it.

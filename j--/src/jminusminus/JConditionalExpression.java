@@ -1,5 +1,9 @@
 package jminusminus;
 
+import static jminusminus.CLConstants.GOTO;
+import static jminusminus.CLConstants.IFEQ;
+import static jminusminus.TokenKind.BOOLEAN;
+
 /**
  * The AST node for a conditional expression.
  */
@@ -32,7 +36,23 @@ class JConditionalExpression extends JExpression {
      * {@inheritDoc}
      */
     public JExpression analyze(Context context) {
-        // TODO
+        condition = condition.analyze(context);
+        thenPart = thenPart.analyze(context);
+        elsePart = elsePart.analyze(context);
+        
+        // Using TokenKind.BOOLEAN here
+        if (!condition.type().equals(Type.BOOLEAN)) {
+            JAST.compilationUnit.reportSemanticError(line(), 
+                "Condition must be of type " + BOOLEAN.image());
+            type = Type.ANY;
+        }
+
+        if (!thenPart.type().equals(elsePart.type())) {
+            JAST.compilationUnit.reportSemanticError(line(), "Types are Incompatable");
+            type = Type.ANY;
+        } else {
+            type = thenPart.type();
+        }
         return this;
     }
 
@@ -40,7 +60,19 @@ class JConditionalExpression extends JExpression {
      * {@inheritDoc}
      */
     public void codegen(CLEmitter output) {
-        // TODO
+        String elseLabel = output.createLabel();
+        String endLabel = output.createLabel();
+
+        condition.codegen(output);
+        output.addBranchInstruction(IFEQ, elseLabel);
+
+        thenPart.codegen(output);
+        output.addBranchInstruction(GOTO, endLabel);
+
+        output.addLabel(elseLabel);
+        elsePart.codegen(output);
+
+        output.addLabel(endLabel);
     }
 
     /**

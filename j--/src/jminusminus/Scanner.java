@@ -109,6 +109,13 @@ class Scanner {
             case '%':
                 nextCh();
                 return new TokenInfo(REM, line);
+                
+            case '?':
+                nextCh();
+                return new TokenInfo(QUESTION, line);
+            case ':':
+                nextCh();
+                return new TokenInfo(COLON, line);
             case ',':
                 nextCh();
                 return new TokenInfo(COMMA, line);

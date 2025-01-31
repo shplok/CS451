@@ -263,12 +263,17 @@ enum TokenKind {
     /**
      * Remainder Operator
      */
-    REM("%");
+    REM("%"),
 
     // /**
-    //  * Unary Addition Operator ? I don't think it's needed.
+    //  Question Operator
     //  */
-    
+    QUESTION("?"),
+
+    // /**
+    //  Colon Operator
+    //  */  
+    COLON(":");
 
     // The token kind's string representation.
     private final String image;
