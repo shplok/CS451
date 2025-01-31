@@ -1,0 +1,77 @@
+<!--
+An Ant build configuration file for the iota compiler.
+-->
+
+<project default="jar">
+
+    <property name="APP_FULL_NAME" value="iota (A High-level Language for the HMMM Architecture)" />
+    <property name="SRC_DIR" value="src" />
+    <property name="CLASS_DIR" value="out" />
+    <property name="LIB_DIR" value="lib" />
+    <property name="JAVADOC_DIR" value="iota-javadoc" />
+
+    <!-- help: Lists main targets -->
+    <target name="help">
+        <echo message="help: Lists main targets"/>
+        <echo message="compile: Compiles the iota source files"/>
+        <echo message="jar: Bundles iota classes into a jar file"/>
+        <echo message="javadoc: Generates javadoc for iota classes"/>
+        <echo message="package: Creates a distributable for iota"/>
+        <echo message="clean: Removes generated files and folders"/>
+    </target>
+
+    <!-- compile: Compiles the iota source files. -->
+    <target name="compile" depends="clean">
+        <echo message="Compiling iota source files..."/>
+        <mkdir dir="${CLASS_DIR}" />
+        <javac srcdir="${SRC_DIR}" destdir="${CLASS_DIR}" includes="iota/**"
+               includeantruntime="false" debug="on">
+            <!-- Uncomment the following to see compiler warnings. -->
+            <!-- <compilerarg value="-Xlint" />                    -->
+        </javac>
+    </target>
+
+    <!--
+       jar: Bundles iota classes into a jar file.
+    -->
+    <target name="jar" depends="compile">
+        <echo message="Bundling class files into jar files..."/>
+        <jar destfile="${LIB_DIR}/iota.jar" basedir="${CLASS_DIR}" includes="iota/**"/>
+    </target>
+
+    <!-- javadoc: Generates javadoc for iota classes. -->
+    <target name="javadoc">
+        <echo message="Generating javadoc for iota classes..."/>
+        <mkdir dir="${JAVADOC_DIR}" />
+        <javadoc overview="${SRC_DIR}/overview.html" package="Yes" sourcepath="${SRC_DIR}"
+                 destdir="${JAVADOC_DIR}" packagenames="iota.*"
+                 windowtitle="${APP_FULL_NAME}" doctitle="${APP_FULL_NAME}">
+            <link href="https://docs.oracle.com/en/java/javase/21/docs/api/" />
+        </javadoc>
+    </target>
+
+    <!-- 
+       package: Makes a distributable package for the compiler which includes the sources,
+       binaries, and documentation.
+    -->
+    <target name="package" depends="jar,javadoc">
+        <echo message="Making a distributable iota.zip..."/>
+        <zip destfile="iota.zip"
+             basedir="../"
+             includes="iota/**"
+             excludes="iota/${CLASS_DIR}/**,iota/*.zip" />
+    </target>
+
+    <!-- clean: Removes generated files and folders. -->
+    <target name="clean">
+        <echo message="Removing generated files and folders..."/>
+        <delete>
+            <fileset dir="${basedir}" includes="**/*.class,**/*.marv"/>
+        </delete>
+        <delete file="iota.zip" />
+        <delete file="${LIB_DIR}/iota.jar" />
+        <delete dir="${CLASS_DIR}" />
+        <delete dir="${JAVADOC_DIR}" />
+    </target>
+
+</project>

@@ -1,0 +1,22 @@
+// Accepts n (int) and k (int) from standard input and writes C(n, k) = n!/(k!(n-k)!) to standard output.
+
+// Returns n! computed iteratively.
+int factorial(int n) {
+    int result = 1;
+    int i = 1;
+    while (i <= n) {
+        result = result * i;
+        i = i + 1;
+    }
+    return result;
+}
+
+// Entry point.
+void main() {
+    int n = read();
+    int k = read();
+    int nFac = factorial(n);
+    int kFac = factorial(k);
+    int nMinusKFac = factorial(n - k);
+    write(nFac / (kFac * nMinusKFac));
+}

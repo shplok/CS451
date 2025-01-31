@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Wrapper script for running iota.Main program.
+
+BASE_DIR=`dirname $0`
+j=${BASE_DIR}/../../
+export j
+JAVA=java
+CPATH="${BASE_DIR}/../lib/iota.jar"
+if [ "$CLASSPATH" != "" ] ; then
+    CPATH=${CPATH}:"${CLASSPATH}"
+fi
+$JAVA -classpath $CPATH iota.Main "iota" $*

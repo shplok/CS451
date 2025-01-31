@@ -1,0 +1,12 @@
+// Accepts n (int) from standard input and writes n * n to standard output.
+
+// Returns n^2.
+int square(int n) {
+    return n * n;
+}
+
+// Entry point.
+void main() {
+    int n = read();
+    write(square(n));
+}

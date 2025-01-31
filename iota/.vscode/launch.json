@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "iota Compiler",
+            "request": "launch",
+            "mainClass": "iota.Main",
+            "args": "${command:SpecifyProgramArgs}"
+        },
+    ]
+}

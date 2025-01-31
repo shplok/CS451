@@ -1,0 +1,9 @@
+// Accepts a (int) and b (int) from standard input and writes to standard output the value of a^2 + b^2.
+
+// Entry point.
+void main() {
+    int a = read();
+    int b = read();
+    int c = a * a + b * b;
+    write(c);
+}

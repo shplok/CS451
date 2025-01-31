@@ -1,0 +1,10 @@
+// Accepts n (int) from standard input and writes a countdown from n to 0 to standard output.
+
+// Entry point.
+void main() {
+    int n = read();
+    while (n >= 0) {
+        write(n);
+        n = n - 1;
+    }
+}

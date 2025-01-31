@@ -1,0 +1,32 @@
+// Accepts n (int) from standard input and writes the number of primes less than or equal to n to standard output.
+
+// Returns true if x is prime, and false otherwise.
+boolean isPrime(int x) {
+    int i = 2;
+    while (i * i <= x) {
+        if (x % i == 0) {
+            return false;
+        }
+        i = i + 1;
+    }
+    return true;
+}
+
+// Returns the number of primes less than or equal to n.
+int primeCounter(int n) {
+    int count = 0;
+    int i = 2;
+    while (i <= n) {
+        if (isPrime(i)) {
+            count = count + 1;
+        }
+        i = i + 1;
+    }
+    return count;
+}
+
+// Entry point.
+void main() {
+    int n = read();
+    write(primeCounter(n));
+}

@@ -1,0 +1,12 @@
+// Accepts year (int) from standard input and writes whether year is a leap year (1) or not (0) to standard output.
+
+// Returns true if year is a leap year, and false otherwise.
+boolean isLeapYear(int year) {
+    return year % 4 == 0 && year % 100 != 0 || year % 400 == 0;
+}
+
+// Entry point.
+void main() {
+    int year = read();
+    write(isLeapYear(year));
+}

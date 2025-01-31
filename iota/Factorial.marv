@@ -1,0 +1,79 @@
+# Factorial.marv (last modified: Tue Jan 28 13:22:45 EST 2025)
+
+0     calln   r12     37              # call method @37
+1     halt                            # halt the machine
+
+# factorial(I)I
+
+# B0 (entry)
+2     pushr   r12     r15             # mem[r15++] = r12
+3     pushr   r14     r15             # mem[r15++] = r14
+4     copy    r14     r15             # r14 = r15
+5     pushr   r0      r15             # mem[r15++] = r0
+6     pushr   r1      r15             # mem[r15++] = r1
+7     pushr   r2      r15             # mem[r15++] = r2
+8     pushr   r3      r15             # mem[r15++] = r3
+9     pushr   r4      r15             # mem[r15++] = r4
+10    pushr   r5      r15             # mem[r15++] = r5
+11    pushr   r6      r15             # mem[r15++] = r6
+12    loadn   r0      r14     -3      # r0 = mem[r14 + -3]
+
+# B1
+13    set0    r1                      # r1 = 0
+14    jnen    r0      r1      18      # if r0 != r1 jump to 18
+
+# B2
+15    set1    r2                      # r2 = 1
+16    copy    r13     r2              # r13 = r2
+17    jumpn   27                      # jump to 27
+
+# B3
+18    set1    r3                      # r3 = 1
+19    sub     r4      r0      r3      # r4 = r0 - r3
+20    pushr   r4      r15             # mem[r15++] = r4
+21    calln   r12     2               # call method @2
+22    addn    r15     -1              # r15 += -1
+23    copy    r5      r13             # r5 = r13
+24    mul     r6      r0      r5      # r6 = r0 * r5
+25    copy    r13     r6              # r13 = r6
+26    jumpn   27                      # jump to 27
+
+# B4 (exit)
+27    popr    r6      r15             # r6 = mem[--r15]
+28    popr    r5      r15             # r5 = mem[--r15]
+29    popr    r4      r15             # r4 = mem[--r15]
+30    popr    r3      r15             # r3 = mem[--r15]
+31    popr    r2      r15             # r2 = mem[--r15]
+32    popr    r1      r15             # r1 = mem[--r15]
+33    popr    r0      r15             # r0 = mem[--r15]
+34    popr    r14     r15             # r14 = mem[--r15]
+35    popr    r12     r15             # r12 = mem[--r15]
+36    jumpr   r12                     # jump to r12
+
+
+# main()V
+
+# B0 (entry)
+37    pushr   r12     r15             # mem[r15++] = r12
+38    pushr   r14     r15             # mem[r15++] = r14
+39    copy    r14     r15             # r14 = r15
+40    pushr   r0      r15             # mem[r15++] = r0
+41    pushr   r1      r15             # mem[r15++] = r1
+
+# B1
+42    read    r0                      # r0 = read()
+43    pushr   r0      r15             # mem[r15++] = r0
+44    calln   r12     2               # call method @2
+45    addn    r15     -1              # r15 += -1
+46    copy    r1      r13             # r1 = r13
+47    write   r1                      # write(r1)
+48    jumpn   49                      # jump to 49
+
+# B2 (exit)
+49    popr    r1      r15             # r1 = mem[--r15]
+50    popr    r0      r15             # r0 = mem[--r15]
+51    popr    r14     r15             # r14 = mem[--r15]
+52    popr    r12     r15             # r12 = mem[--r15]
+53    jumpr   r12                     # jump to r12
+
+

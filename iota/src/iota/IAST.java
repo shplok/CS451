@@ -1,0 +1,180 @@
+package iota;
+
+import java.util.ArrayList;
+
+/**
+ * IAST is the abstract superclass of all nodes in the abstract syntax tree (AST).
+ */
+abstract class IAST {
+    /**
+     * Current compilation unit (set in ICompilationUnit()).
+     */
+    public static ICompilationUnit compilationUnit;
+
+    /**
+     * Line in which the source for the AST was found.
+     */
+    protected int line;
+
+    /**
+     * Constructs an AST node the given its line number in the source file.
+     *
+     * @param line line in which the source for the AST was found.
+     */
+    protected IAST(int line) {
+        this.line = line;
+    }
+
+    /**
+     * Returns the line in which the source for the AST was found.
+     *
+     * @return the line in which the source for the AST was found.
+     */
+    public int line() {
+        return line;
+    }
+
+    /**
+     * Performs first phase of semantic analysis on this AST.
+     *
+     * @param context the environment (scope) in which code is pre-analyzed.
+     * @param partial the code emitter.
+     */
+    public void preAnalyze(Context context, CLEmitter partial) {
+        // A dummy -- redefined where necessary.
+    }
+
+    /**
+     * Performs second phase of semantic analysis on this AST and returns the (possibly modified) AST.
+     *
+     * @param context the environment (scope) in which code is analyzed.
+     * @return the (possibly modified) AST.
+     */
+    public abstract IAST analyze(Context context);
+
+    /**
+     * Performs code generation for this AST.
+     *
+     * @param output the code emitter.
+     */
+    public abstract void codegen(CLEmitter output);
+
+    /**
+     * Stores information about this AST in JSON format.
+     *
+     * @param json the JSON emitter.
+     */
+    public void toJSON(JSONElement json) {
+        // A dummy -- redefined where necessary.
+    }
+}
+
+/**
+ * Representation of an element with a JSON document.
+ */
+class JSONElement {
+    // List of attribute names.
+    private final ArrayList<String> attrNames;
+
+    // List of attribute values.
+    private final ArrayList<String> attrValues;
+
+    // List of children names.
+    private final ArrayList<String> childrenNames;
+
+    // List of children.
+    private final ArrayList<JSONElement> children;
+
+    // Indentation level.
+    private int indentation;
+
+    /**
+     * Constructs an empty JSON element.
+     */
+    public JSONElement() {
+        this.attrNames = new ArrayList<>();
+        this.attrValues = new ArrayList<>();
+        this.childrenNames = new ArrayList<>();
+        this.children = new ArrayList<>();
+        indentation = 0;
+    }
+
+    /**
+     * Adds an attribute to this JSON element with the given name and value.
+     *
+     * @param name  name of the attribute.
+     * @param value value of the attribute.
+     */
+    public void addAttribute(String name, String value) {
+        attrNames.add(name);
+        attrValues.add(value);
+    }
+
+    /**
+     * Adds an attribute to this JSON element with the given name and value as a list of strings.
+     *
+     * @param name  name of the attribute.
+     * @param value value of the attribute as a list of strings.
+     */
+    public void addAttribute(String name, ArrayList<String> value) {
+        attrNames.add(name);
+        attrValues.add(value.toString());
+    }
+
+    /**
+     * Adds a child to this JSON element with the given name.
+     *
+     * @param name  name of the child.
+     * @param child the child.
+     */
+    public void addChild(String name, JSONElement child) {
+        child.indentation = indentation + 4;
+        childrenNames.add(name);
+        children.add(child);
+    }
+
+    /**
+     * Returns a string representation of this JSON element.
+     *
+     * @return a string representation of this JSON element.
+     */
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (indentation > 0) {
+            sb.append(String.format("%" + indentation + "s", " "));
+        }
+        sb.append("{\n");
+        for (int i = 0; i < attrNames.size(); i++) {
+            String name = attrNames.get(i);
+            String value = attrValues.get(i);
+            sb.append(String.format("%" + (indentation + 4) + "s", " "));
+            if (value.startsWith("[") && value.endsWith("]")) {
+                sb.append(String.format("\"%s\": %s", name, value));
+            } else {
+                sb.append(String.format("\"%s\": \"%s\"", name, value));
+            }
+            if (i < attrNames.size() - 1 || !childrenNames.isEmpty()) {
+                sb.append(",\n");
+            } else {
+                sb.append("\n");
+            }
+        }
+        for (int i = 0; i < childrenNames.size(); i++) {
+            String name = childrenNames.get(i);
+            JSONElement child = children.get(i);
+            sb.append(String.format("%" + (indentation + 4) + "s", " "));
+            sb.append(String.format("\"%s\":\n", name));
+            sb.append(child.toString());
+            if (i < childrenNames.size() - 1) {
+                sb.append(",\n");
+            } else {
+                sb.append("\n");
+            }
+        }
+        if (indentation > 0) {
+            sb.append(String.format("%" + indentation + "s", " "));
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+}

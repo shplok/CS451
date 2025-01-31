@@ -1,0 +1,30 @@
+// Accepts x (int), y (int), and z (int) from standard input and writes them in sorted order to standard output.
+
+// Returns min(x, y).
+int min(int x, int y) {
+    if (x < y) {
+        return x;
+    }
+    return y;
+}
+
+// Returns max(x, y).
+int max(int x, int y) {
+    if (x > y) {
+        return x;
+    }
+    return y;
+}
+
+// Entry point.
+void main() {
+    int x = read();
+    int y = read();
+    int z = read();
+    int min = min(x, min(y, z));
+    int max = max(x, max(y, z));
+    int middle = x + y + z - min - max;
+    write(min);
+    write(middle);
+    write(max);
+}

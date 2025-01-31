@@ -1,0 +1,15 @@
+// Accepts n (int) from standard input and writes n! (computed recursively) to standard output.
+
+// Returns n! computed recursively.
+int factorial(int n) {
+    if (n == 0) {
+        return 1;
+    }
+    return n * factorial(n - 1);
+}
+
+// Entry point.
+void main() {
+    int n = read();
+    write(factorial(n));
+}

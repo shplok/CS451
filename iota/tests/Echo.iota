@@ -1,0 +1,7 @@
+// Accepts n (int) from standard input and writes it back to standard output.
+
+// Entry point.
+void main() {
+    int x = read();
+    write(x);
+}

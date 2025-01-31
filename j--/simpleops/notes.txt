@@ -1,0 +1,55 @@
+1. For each problem, state its goal in your own words and describe your approach to solve the 
+problem along with any issues you encountered and if/how you managed to solve those issues.
+
+[Problem 1 (Understanding j--)]
+
+Goal: To produce a sequence of integers, provided the starting point, stopping point, and incrementative step. 
+(Not including largest number if exceding upper bounds)
+
+Approach: I began with a brief brush-up on some Java syntax and reading the Provided Java Lite documentation.
+I then tried to approach the incrementation using a for-loop and noticed some of the assignment techniques 
+usually used, were not allowed. I also noticed that "<" (LT) is not allowed to be used for some reason, though the 
+Java Lite documentation allows for that. To put it simply, I just swapped the conditions and the sign and the ">" worked fine.
+Then I just had it print to Standard Output and that was that.
+
+[Problem 2 (Understanding the JVM)]
+
+Goal: To produce a sequence of integers programatically using CLEmitter and bytecode.
+
+Approach: Initially, I was so lost in figuring out how to do this, as I could not figure out what a single CLEmitter
+method was doing. The documentation was rather frustrating to weed through, until I realized that I could take a look at
+the GenFactorial test file. I did what I could to port over the common segments of code to mine, getting to the point
+where I had to code the while loop. I recognized that I needed to utilize the Command-Line Input similarly to the original
+Seq.java file, so I tried to follow it as closely as possible. I also had a bit of trouble adding the start and step
+together, but after doing it, it makes a lot more sense. This was quite a tough problem, having to weed through the
+documentation by myself and such.
+
+[Problem 3 (Arithmetic Operators)]
+
+Goal: ...
+
+Approach: ...
+
+[Problem 4 (Conditional Expression)]
+
+Goal: ...
+
+Approach: ...
+
+[Problem 5 (Do Statement)]
+
+Goal: ...
+
+Approach: ...
+
+2. Did you receive any help? List the sources along with a short description of the help received.
+
+Source                               Help Received
+------                               -------------
+
+...                                  ...
+
+3. List any other comments here. Feel free to provide any feedback on how much you learned from
+doing the assignment, and whether you enjoyed doing it.
+
+...

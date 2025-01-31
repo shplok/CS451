@@ -1,0 +1,22 @@
+// Accepts x (int) from standard input and writes to standard output whether x is prime or not.
+
+// Returns true if x is prime, and false otherwise.
+boolean isPrime(int x) {
+    if (x < 2) {
+        return false;
+    }
+    int i = 2;
+    while (i * i <= x) {
+        if (x % i == 0) {
+            return false;
+        }
+        i = i + 1;
+    }
+    return true;
+}
+
+// Entry point.
+void main() {
+    int x = read();
+    write(isPrime(x));
+}

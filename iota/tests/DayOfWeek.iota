@@ -1,0 +1,19 @@
+// Accepts m (int), d (int), and y (int) representing a date from standard input and writes the corresponding day of
+// week (0 for Sunday, 1 for Monday, ..., 6 for Saturday) to standard output.
+
+// Returns the day of the week (0 - 6) corresponding to the given date.
+int dow(int m, int d, int y) {
+   int y0 = y - (14 - m) / 12;
+   int x0 = y0 + y0 / 4 - y0 / 100 + y0 / 400;
+   int m0 = m + 12 * ((14 - m) / 12) - 2;
+   int dow = (d + x0 + 31 * m0 / 12) % 7;
+   return dow;
+}
+
+// Entry point.
+void main() {
+    int m = read();
+    int d = read();
+    int y = read();
+    write(dow(m, d, y));
+}
