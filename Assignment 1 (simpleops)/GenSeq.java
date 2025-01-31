@@ -70,10 +70,15 @@ public class GenSeq {
         // Loop start
         e.addLabel(loopStart);
 
-        // if (stop <= start) goto loopEnd (end the looping)
-        e.addNoArgInstruction(ILOAD_3);  // stop
-        e.addNoArgInstruction(ILOAD_1);  // start
-        e.addBranchInstruction(IF_ICMPLE, loopEnd);
+        // Calculate start - 1 for comparison
+        e.addNoArgInstruction(ILOAD_1);  // Load start
+        e.addNoArgInstruction(ICONST_1);  // Load 1
+        e.addNoArgInstruction(ISUB);      // Subtract 1 from start
+
+        // if (stop <= (start - 1)) goto loopEnd
+        e.addNoArgInstruction(ILOAD_3);  // Load stop
+        e.addNoArgInstruction(SWAP);     // Swap top two stack values
+        e.addBranchInstruction(IF_ICMPLE, loopEnd);  // Compare and branch if less than or equal
 
         // Print value at current iteration
         e.addMemberAccessInstruction(GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
@@ -95,7 +100,7 @@ public class GenSeq {
         // return
         e.addNoArgInstruction(RETURN);
 
-        // Write class file for Gen Seq
+        // Write class file
         e.write();
     }
 }
