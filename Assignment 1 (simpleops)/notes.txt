@@ -26,9 +26,14 @@ documentation by myself and such.
 
 [Problem 3 (Arithmetic Operators)]
 
-Goal: ...
+Goal: Add support for the division(/), modulo(%), and unary plus () operator within the compiler.
 
-Approach: ...
+Approach: I started by looking at the slides for the implementation of the division operator, and followed those exactly.
+I had no idea there were so many steps for setting up a new operator in a compiler. After following those, word for word, 
+I went to the next operator. I added support for the Remainder operator within the TokenInfo.java file, then went over to
+the JBinaryExpression.java folder and added what I needed to there. Then I updated the Scanner and Parser files to
+support the new operator. Finally to implement unary plus, I just updated JUnaryExpression.java and I'm pretty sure 
+that's all that I did.
 
 [Problem 4 (Conditional Expression)]
 
