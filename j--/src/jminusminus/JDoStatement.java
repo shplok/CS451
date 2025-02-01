@@ -1,5 +1,6 @@
 package jminusminus;
 
+
 /**
  * The AST node for a do-statement.
  */
@@ -24,10 +25,18 @@ class JDoStatement extends JStatement {
     }
 
     /**
+    * Analyzes the do-statement. Checks that the test expression
+    * is boolean and analyzes both the test and the body.
+
+    /**
      * {@inheritDoc}
      */
     public JStatement analyze(Context context) {
-        // TODO
+        condition = condition.analyze(context);
+
+        // Ensure boolean type
+        condition.type().mustMatchExpected(line(), Type.BOOLEAN);
+        body = (JStatement) body.analyze(context);
         return this;
     }
 
@@ -35,7 +44,24 @@ class JDoStatement extends JStatement {
      * {@inheritDoc}
      */
     public void codegen(CLEmitter output) {
-        // TODO
+        // Create labels for body and test
+        String bodyLabel = output.createLabel();
+        String testLabel = output.createLabel();
+        
+        // Mark the start of the loop body
+        output.addLabel(bodyLabel);
+        
+        // Generate code for the body
+        body.codegen(output);
+        
+        // Mark where we test the condition
+        output.addLabel(testLabel);
+        
+        // Generate code for the condition
+        condition.codegen(output);
+        
+        // If condition is true , goto: start
+        output.addBranchInstruction(CLConstants.IFNE, bodyLabel);
     }
 
     /**

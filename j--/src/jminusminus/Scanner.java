@@ -72,6 +72,7 @@ class Scanner {
         reserved.put(TRUE.image(), TRUE);
         reserved.put(VOID.image(), VOID);
         reserved.put(WHILE.image(), WHILE);
+        reserved.put(DO.image(), DO); // include do in scanner
 
         // Prime the pump.
         nextCh();
@@ -106,16 +107,20 @@ class Scanner {
         switch (ch) {
             case EOFCH:
                 return new TokenInfo(EOF, line);
+
+            // ------------------- NEW CASES ------------------------ //
+        
             case '%':
                 nextCh();
                 return new TokenInfo(REM, line);
-                
             case '?':
                 nextCh();
                 return new TokenInfo(QUESTION, line);
             case ':':
                 nextCh();
                 return new TokenInfo(COLON, line);
+
+            // ----------------------------------------------------- //
             case ',':
                 nextCh();
                 return new TokenInfo(COMMA, line);

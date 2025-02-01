@@ -273,7 +273,12 @@ enum TokenKind {
     // /**
     //  Colon Operator
     //  */  
-    COLON(":");
+    COLON(":"),
+
+    // /**
+    //  Do Statement
+    //  */ 
+    DO("do");
 
     // The token kind's string representation.
     private final String image;

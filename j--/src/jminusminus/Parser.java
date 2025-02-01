@@ -330,6 +330,26 @@ class Parser {
         int line = scanner.token().line();
         if (see(LCURLY)) {
             return block();
+
+        } else if (have(DO)) {
+            // Start with the block since we know do-while needs a compound statement
+            JStatement body = statement();
+            
+            // We need to be more explicit about expecting WHILE
+            if (!see(WHILE)) {
+                reportParserError("while sought where %s found", scanner.token().image());
+                return new JDoStatement(line, body, new JWildExpression(line));
+            }
+            mustBe(WHILE);
+            
+            // Parse condition in parentheses
+            JExpression condition = parExpression();
+            
+            // Must end with semicolon
+            mustBe(SEMI);
+            
+            return new JDoStatement(line, body, condition);
+
         } else if (have(IF)) {
             JExpression test = parExpression();
             JStatement consequent = statement();
@@ -612,6 +632,7 @@ class Parser {
                 || expr instanceof JPreDecrementOp
                 || expr instanceof JPostIncrementOp
                 || expr instanceof JPostDecrementOp
+                || expr instanceof JPlusAssignOp
                 || expr instanceof JMessageExpression
                 || expr instanceof JSuperConstruction
                 || expr instanceof JThisConstruction
@@ -647,7 +668,7 @@ class Parser {
      *
      * @return an AST for an assignment expression.
      */
-    private JExpression assignmentExpression() {
+        private JExpression assignmentExpression() {
         int line = scanner.token().line();
         JExpression lhs = conditionalExpression();
         if (have(ASSIGN)) {
@@ -731,8 +752,7 @@ class Parser {
      * Parses a relational expression and returns an AST for it.
      *
      * <pre>
-     *   relationalExpression ::= additiveExpression [ ( GT | LE ) additiveExpression
-     *                                               | INSTANCEOF referenceType ]
+     *   relationalExpression ::= additiveExpression { ( GT | LE ) additiveExpression }
      * </pre>
      *
      * @return an AST for a relational expression.
@@ -740,15 +760,17 @@ class Parser {
     private JExpression relationalExpression() {
         int line = scanner.token().line();
         JExpression lhs = additiveExpression();
-        if (have(GT)) {
-            return new JGreaterThanOp(line, lhs, additiveExpression());
-        } else if (have(LE)) {
-            return new JLessEqualOp(line, lhs, additiveExpression());
-        } else if (have(INSTANCEOF)) {
-            return new JInstanceOfOp(line, lhs, referenceType());
-        } else {
-            return lhs;
+        boolean more = true;
+        while (more) {
+            if (have(GT)) {
+                lhs = new JGreaterThanOp(line, lhs, additiveExpression());
+            } else if (have(LE)) {
+                lhs = new JLessEqualOp(line, lhs, additiveExpression());
+            } else {
+                more = false;
+            }
         }
+        return lhs;
     }
 
     /**

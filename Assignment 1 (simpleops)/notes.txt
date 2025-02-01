@@ -49,16 +49,26 @@ allow for conditional, not conditionaland.
 
 [Problem 5 (Do Statement)]
 
-Goal: ...
+Goal: We want to add programatic support for the "do" while statement in our j-- extension.
 
-Approach: ...
+Approach: I started by adding the token info for DO. Then I went over to DoStatement.java to kind of see what the syntax
+was looking like and what I might need. I noticed I would be looking for a couple parts: The "do", the body of the do, 
+the while, the conditional in the while loop, and then a semicolon to end it off. I knew that would be for JDoStatment.
+After That, I went to the JDoStatment and started filling out the format for the whole statement. After that, I went to
+parser and added the support required for it to actually work. This was the part that took me the second longest for
+this problem, as I was having some trouble making sure that everything was supported. The thing that took me the absolute
+longes though, was the Scanner.java file. I think I closed it out after doing problem 4, so it wasn't really in my mind
+at the time. Nothing was working, and I was so confused, but after a long enough time (like 3 hours) of looking through
+my parser, I realized i forgot to add "reserved.put(DO.image(), DO);" in the scanner tokens. After doing that, it worked
+like a charm.
+
 
 2. Did you receive any help? List the sources along with a short description of the help received.
 
 Source                               Help Received
 ------                               -------------
 
-...                                  ...
+CLEmitter Package Webpage            I looked at the documentation.
 
 3. List any other comments here. Feel free to provide any feedback on how much you learned from
 doing the assignment, and whether you enjoyed doing it.
