@@ -1,0 +1,79 @@
+1. For each problem, state its goal in your own words and describe your approach to solve the 
+problem along with any issues you encountered and if/how you managed to solve those issues.
+
+[Problem 1 (Multiline Comment)]
+
+Goal: Add support for multiline commments in a way that allows for them to be ignored when parsing/compiling files.
+
+Approach: Initially, I didn't fully understand the question, and went for an approach of tokenizing the multiline comment.
+This gave me some difficulty because when I was running diff on the output, I noticed that it was essentially entirely
+wrong. It then hit me that I should be just treating them in the same manner that we did with single line commments and
+expect the compiler to ignore them. I believe the only bit of work required was in the scanner.java file, wherein I
+added support in the getNextToken() function.
+
+[Problem 2 (Reserved Words)]
+
+Goal: Add support for certain reserved keywords so that the scanner wont overlook them or throw any error.
+
+Approach: This one came to me a lot quicker than I was anticipating. I started off with instantly adding the reserved
+words to TokenInfo.java, so that they would have a reference. I then went to Scanner.java and added them in the reserved
+words hashtable with the following line: reserved.put(##reservedWordHere##.image(), ##reservedWordHere##); That seemed
+to be all that I needed to do to get it working. I think it makes sense to me.
+
+[Problem 3 (Operators)]
+
+Goal: To add support for a selection of arithmetic operators.
+
+Approach: This one threw me for quite a loop, as I was unsure about the implementation of the operators. I initially
+began with adding the token info for the operators to TokenInfo.java and implemented the Scanner.java scanner logic
+for each corresponding operator. This is where things got a bit dicey. I was having a lot of trouble compiling, and I
+was pretty sure that the way I handled each operator was okay. I tried adding code to JBinaryExpression.java as well as
+JConditionalExpression.java but to no avail. Then after reverting everything, I tried compiling again. I was getting
+this error:
+
+[javac] C:\Users\sawye\workspace\j--\src\jminusminus\Scanner.java:9: error: package org.javacc.jjtree does not exist
+    [javac] import org.javacc.jjtree.Token;
+    [javac]                         ^
+    [javac] 1 error
+
+    so what I did, was just comment out this line and It worked. I don't think that the way that it should be but I'm 
+    not sure what to do. I checked with the autograder as well and it gave me credit for the question so im just not
+    very sure what to do. 
+
+[Problem 4 (Literals)]
+
+Goal: Add support for multiple different literals (long, double, and exponents) 
+
+Approach: I first started off by adding support in the TokenInfo.java file, and then moved over to the Scanner.java file
+I was running into issues from the start, but I just started adding cases in the numerical section. I of course ran into
+the same issue that I did for problem 3, so I just commented out the import again. I then started adding support for
+l and L, followed by d and D and e in their normal cases. The most difficult parts, I highlight below:
+
+The most obnoxious cases:
+".0" -> DOUBLE_LITERAL
+".0d" -> DOUBLE_LITERAL with 'd' suffix
+".0e0" -> DOUBLE_LITERAL with exponent
+".0E+0" -> DOUBLE_LITERAL with signed exponent
+"." -> DOT -- standard cases
+
+I had to edit the case '.' and that was throwing me for quite a loop. After I got the general logic down, I was able to
+essentially copy and paste the other logic from the prior cases. 
+
+2. Did you receive any help? List the sources along with a short description of the help received.
+
+Source                               Help Received
+------                               -------------
+
+N/A                                 No Help Received
+
+3. List any other comments here. Feel free to provide any feedback on how much you learned from
+doing the assignment, and whether you enjoyed doing it.
+
+Quite a fun assignment, I just had those concerns about the import:
+
+[javac] C:\Users\sawye\workspace\j--\src\jminusminus\Scanner.java:9: error: package org.javacc.jjtree does not exist
+    [javac] import org.javacc.jjtree.Token;
+    [javac]                         ^
+    [javac] 1 error,
+
+as it didnt concern my answers after removing it. thanks!

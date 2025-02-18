@@ -6,6 +6,10 @@ import java.io.IOException;
 import java.io.LineNumberReader;
 import java.util.Hashtable;
 
+// import org.javacc.jjtree.Token;
+
+// import org.javacc.jjtree.Token;
+
 import static jminusminus.TokenKind.*;
 
 /**
@@ -72,7 +76,15 @@ class Scanner {
         reserved.put(TRUE.image(), TRUE);
         reserved.put(VOID.image(), VOID);
         reserved.put(WHILE.image(), WHILE);
-        reserved.put(DO.image(), DO); // include do in scanner
+        reserved.put(DO.image(), DO);               // include do in scanner
+        reserved.put(BREAK.image(), BREAK);         // include break in scanner
+        reserved.put(CASE.image(), CASE);           // include case in scanner
+        reserved.put(CONTINUE.image(), CONTINUE);   // include continue in scanner
+        reserved.put(DEFAULT.image(), DEFAULT);     // include default in scanner
+        reserved.put(DOUBLE.image(), DOUBLE);       // include double in scanner
+        reserved.put(FOR.image(), FOR);             // include for in scanner
+        reserved.put(LONG.image(), LONG);           // include long in scanner
+        reserved.put(SWITCH.image(), SWITCH);       // include switch in scanner
 
         // Prime the pump.
         nextCh();
@@ -97,6 +109,29 @@ class Scanner {
                     while (ch != '\n' && ch != EOFCH) {
                         nextCh();
                     }
+                } else if (ch == '*') {
+                    // skip the values within the comment.
+                    nextCh();
+                    while(true) {
+                        if (ch == EOFCH) {
+                            reportScannerError("Comment is incomplete.");
+                            break;
+                        }
+                        if (ch == '*') {
+                            nextCh();
+                            if (ch == '/') {
+                                // comment has been finished.
+                                nextCh();
+                                break;
+                            } 
+                        } else {
+                            nextCh();
+                        }
+                    }
+                } else if (ch == '=') {
+                    // support for /=
+                    nextCh();
+                    return new TokenInfo(DIV_ASSIGN, line);
                 } else {
                     return new TokenInfo(DIV, line);
                 }
@@ -112,7 +147,12 @@ class Scanner {
         
             case '%':
                 nextCh();
-                return new TokenInfo(REM, line);
+                if (ch == '=') {
+                    nextCh();
+                    return new TokenInfo(REM_ASSIGN, line);
+                } else {
+                    return new TokenInfo(REM, line);
+                }
             case '?':
                 nextCh();
                 return new TokenInfo(QUESTION, line);
@@ -125,8 +165,49 @@ class Scanner {
                 nextCh();
                 return new TokenInfo(COMMA, line);
             case '.':
+                buffer = new StringBuilder();
+                buffer.append(ch);
                 nextCh();
-                return new TokenInfo(DOT, line);
+                
+                // while we have digits, move on
+                boolean hasDigits = false;
+                while (isDigit(ch)) {
+                    hasDigits = true;
+                    buffer.append(ch);
+                    nextCh();
+                }
+                
+                // if digits are found after the dot, it's a double
+                if (hasDigits) {
+                    // handle exponent notation
+                    if (ch == 'e' || ch == 'E') {
+                        buffer.append(ch);
+                        nextCh();
+                        // handle optional sign
+                        if (ch == '+' || ch == '-') {
+                            buffer.append(ch);
+                            nextCh();
+                        }
+                        // must have at least one digit after e/E
+                        if (!isDigit(ch)) {
+                            reportScannerError("Invalid double literal - exponent has no digits");
+                            return getNextToken();
+                        }
+                        while (isDigit(ch)) {
+                            buffer.append(ch);
+                            nextCh();
+                        }
+                    }
+                    // check for the d/D suffix
+                    if (ch == 'd' || ch == 'D') {
+                        buffer.append(ch);
+                        nextCh();
+                    }
+                    return new TokenInfo(DOUBLE_LITERAL, buffer.toString(), line);
+                } else {
+                    // otherwise it's just a dot operator
+                    return new TokenInfo(DOT, line);
+                }
             case '[':
                 nextCh();
                 return new TokenInfo(LBRACK, line);
@@ -153,6 +234,10 @@ class Scanner {
                 if (ch == '-') {
                     nextCh();
                     return new TokenInfo(DEC, line);
+                } else if (ch == '=') {
+                    // support for -=:
+                    nextCh();
+                    return new TokenInfo(MINUS_ASSIGN, line);
                 } else {
                     return new TokenInfo(MINUS, line);
                 }
@@ -169,7 +254,13 @@ class Scanner {
                 }
             case '*':
                 nextCh();
-                return new TokenInfo(STAR, line);
+                if (ch == '=') {
+                    // support for *=
+                    nextCh();
+                    return new TokenInfo(STAR_ASSIGN, line);
+                } else {
+                    return new TokenInfo(STAR, line);
+                }  
             case '=':
                 nextCh();
                 if (ch == '=') {
@@ -180,19 +271,31 @@ class Scanner {
                 }
             case '>':
                 nextCh();
-                return new TokenInfo(GT, line);
+                if (ch == '=') {
+                    // support for >=
+                    nextCh();
+                    return new TokenInfo(GE, line);
+                } else {
+                    return new TokenInfo(GT, line);
+                }                
             case '<':
                 nextCh();
                 if (ch == '=') {
                     nextCh();
                     return new TokenInfo(LE, line);
                 } else {
-                    reportScannerError("operator < is not supported in j--");
-                    return getNextToken();
+                    // support for <
+                    return new TokenInfo(LT, line);
                 }
             case '!':
                 nextCh();
-                return new TokenInfo(LNOT, line);
+                if (ch == '=') {
+                    // support for !=
+                    nextCh();
+                    return new TokenInfo(NOT_EQUAL, line);
+                } else {
+                    return new TokenInfo(LNOT, line);
+                }       
             case '&':
                 nextCh();
                 if (ch == '&') {
@@ -200,6 +303,15 @@ class Scanner {
                     return new TokenInfo(LAND, line);
                 } else {
                     reportScannerError("operator & is not supported in j--");
+                    return getNextToken();
+                }
+            case '|': // support for || and not |
+                nextCh();
+                if (ch == '|') {
+                    nextCh();
+                    return new TokenInfo(LOR, line);
+                } else {
+                    reportScannerError("operator | is not supported in our version of j-- :)");
                     return getNextToken();
                 }
             case '\'':
@@ -248,22 +360,79 @@ class Scanner {
                     buffer.append("\"");
                 }
                 return new TokenInfo(STRING_LITERAL, buffer.toString(), line);
-            case '0':
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                buffer = new StringBuilder();
-                while (isDigit(ch)) {
-                    buffer.append(ch);
-                    nextCh();
-                }
-                return new TokenInfo(INT_LITERAL, buffer.toString(), line);
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    buffer = new StringBuilder();
+                    
+                    // if starting with decimal point
+                    if (ch == '.') {
+                        buffer.append(ch);
+                        nextCh();
+                        if (!isDigit(ch)) {
+                            return new TokenInfo(DOT, line);  // just a dot, not a number
+                        }
+                    }
+                    
+                    // get digits before decimal point (if any)
+                    while (isDigit(ch)) {
+                        buffer.append(ch);
+                        nextCh();
+                    }
+                
+                    // handle decimal point (if not already handled)
+                    if (ch == '.' && buffer.charAt(0) != '.') {
+                        buffer.append(ch);
+                        nextCh();
+                        // get digits after decimal point
+                        while (isDigit(ch)) {
+                            buffer.append(ch);
+                            nextCh();
+                        }
+                    }
+                
+                    // handle exponent
+                    if (ch == 'e' || ch == 'E') {
+                        buffer.append(ch);
+                        nextCh();
+                        if (ch == '+' || ch == '-') {
+                            buffer.append(ch);
+                            nextCh();
+                        }
+                        if (!isDigit(ch)) {
+                            reportScannerError("Invalid double literal - exponent has no digits");
+                            return getNextToken();
+                        }
+                        while (isDigit(ch)) {
+                            buffer.append(ch);
+                            nextCh();
+                        }
+                    }
+                
+                    // handle type suffixes
+                    if (ch == 'l' || ch == 'L') {
+                        buffer.append(ch);
+                        nextCh();
+                        return new TokenInfo(LONG_LITERAL, buffer.toString(), line);
+                    } else if (ch == 'd' || ch == 'D') {
+                        buffer.append(ch);
+                        nextCh();
+                        return new TokenInfo(DOUBLE_LITERAL, buffer.toString(), line);
+                    }
+                
+                    // determine type based on format
+                    if (buffer.indexOf(".") >= 0 || buffer.indexOf("e") >= 0 || buffer.indexOf("E") >= 0) {
+                        return new TokenInfo(DOUBLE_LITERAL, buffer.toString(), line);
+                    }
+                    
+                    return new TokenInfo(INT_LITERAL, buffer.toString(), line);
             default:
                 if (isIdentifierStart(ch)) {
                     buffer = new StringBuilder();

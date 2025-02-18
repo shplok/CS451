@@ -278,7 +278,98 @@ enum TokenKind {
     // /**
     //  Do Statement
     //  */ 
-    DO("do");
+    DO("do"),
+
+     /**
+     * Reserved word, "break".
+     */
+    BREAK("break"),
+
+    /**
+     * Reserved word, "case".
+     */
+    CASE("case"),
+
+    /**
+     * Reserved word, "continue".
+     */
+    CONTINUE("continue"),
+
+    /**
+     * Reserved word, "default".
+     */
+    DEFAULT("default"),
+
+    /**
+     * Reserved word, "double".
+     */
+    DOUBLE("double"),
+
+    /**
+     * Reserved word, "for".
+     */
+    FOR("for"),
+
+    /**
+     * Reserved word, "long".
+     */
+    LONG("long"),
+
+    /**
+     * Reserved word, "switch".
+     */
+    SWITCH("switch"),
+
+     /**
+     * Minus and Assign Operator, "-=".
+     */
+    MINUS_ASSIGN("-="),
+
+    /**
+     * Multiply and Assign Operator, "*=".
+     */
+    STAR_ASSIGN("*="),
+
+    /**
+     * Divide and Assign Operator, "/=".
+     */
+    DIV_ASSIGN("/="),
+
+    /**
+     * Modulo Assignment Operator, "%=".
+     */
+    REM_ASSIGN("%="),
+
+    /**
+     * Not Equal Operator, "!=".
+     */
+    NOT_EQUAL("!="),
+
+    /**
+     * Greater than or Equal Operator, ">=".
+     */
+    GE(">="),
+
+    /**
+     * Less than Operator, "<".
+     */
+    LT("<"),
+
+    /**
+     * Logical "OR" Operator, "||".
+     */
+    LOR("||"),
+
+        /**
+     * Long literal.
+     */
+    LONG_LITERAL("<LONG_LITERAL>"),
+
+    /**
+     * Double literal.
+     */
+    DOUBLE_LITERAL("<DOUBLE_LITERAL>");
+    
 
     // The token kind's string representation.
     private final String image;
