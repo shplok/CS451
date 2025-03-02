@@ -169,43 +169,24 @@ class Scanner {
                 buffer.append(ch);
                 nextCh();
                 
-                // while we have digits, move on
-                boolean hasDigits = false;
-                while (isDigit(ch)) {
-                    hasDigits = true;
-                    buffer.append(ch);
-                    nextCh();
-                }
-                
-                // if digits are found after the dot, it's a double
-                if (hasDigits) {
-                    // handle exponent notation
+                // If followed by digits, it's a double literal (part 2)
+                if (isDigit(ch)) {
+                    buffer.append(digits());
+                    
+                    // Handle exponent
                     if (ch == 'e' || ch == 'E') {
-                        buffer.append(ch);
-                        nextCh();
-                        // handle optional sign
-                        if (ch == '+' || ch == '-') {
-                            buffer.append(ch);
-                            nextCh();
-                        }
-                        // must have at least one digit after e/E
-                        if (!isDigit(ch)) {
-                            reportScannerError("Invalid double literal - exponent has no digits");
-                            return getNextToken();
-                        }
-                        while (isDigit(ch)) {
-                            buffer.append(ch);
-                            nextCh();
-                        }
+                        buffer.append(exponent());
                     }
-                    // check for the d/D suffix
+                    
+                    // Handle d/D suffix
                     if (ch == 'd' || ch == 'D') {
                         buffer.append(ch);
                         nextCh();
                     }
+                    
                     return new TokenInfo(DOUBLE_LITERAL, buffer.toString(), line);
                 } else {
-                    // otherwise it's just a dot operator
+                    // It's just a dot operator
                     return new TokenInfo(DOT, line);
                 }
             case '[':
@@ -360,79 +341,74 @@ class Scanner {
                     buffer.append("\"");
                 }
                 return new TokenInfo(STRING_LITERAL, buffer.toString(), line);
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    buffer = new StringBuilder();
-                    
-                    // if starting with decimal point
-                    if (ch == '.') {
-                        buffer.append(ch);
-                        nextCh();
-                        if (!isDigit(ch)) {
-                            return new TokenInfo(DOT, line);  // just a dot, not a number
-                        }
-                    }
-                    
-                    // get digits before decimal point (if any)
-                    while (isDigit(ch)) {
-                        buffer.append(ch);
-                        nextCh();
-                    }
+            case '0':
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                buffer = new StringBuilder();
                 
-                    // handle decimal point (if not already handled)
-                    if (ch == '.' && buffer.charAt(0) != '.') {
-                        buffer.append(ch);
-                        nextCh();
-                        // get digits after decimal point
-                        while (isDigit(ch)) {
-                            buffer.append(ch);
-                            nextCh();
-                        }
-                    }
+                // Get all digits before potential decimal point
+                buffer.append(digits());
                 
-                    // handle exponent
+                // Handle long literal with L/l suffix
+                if (ch == 'l' || ch == 'L') {
+                    buffer.append(ch);
+                    nextCh();
+                    return new TokenInfo(LONG_LITERAL, buffer.toString(), line);
+                }
+                
+                // Handle decimal point (double literal part 1)
+                if (ch == '.') {
+                    buffer.append(ch);
+                    nextCh();
+                    
+                    // Get digits after decimal point (if any)
+                    if (isDigit(ch)) {
+                        buffer.append(digits());
+                    }
+                    
+                    // Handle exponent
                     if (ch == 'e' || ch == 'E') {
-                        buffer.append(ch);
-                        nextCh();
-                        if (ch == '+' || ch == '-') {
-                            buffer.append(ch);
-                            nextCh();
-                        }
-                        if (!isDigit(ch)) {
-                            reportScannerError("Invalid double literal - exponent has no digits");
-                            return getNextToken();
-                        }
-                        while (isDigit(ch)) {
-                            buffer.append(ch);
-                            nextCh();
-                        }
-                    }
-                
-                    // handle type suffixes
-                    if (ch == 'l' || ch == 'L') {
-                        buffer.append(ch);
-                        nextCh();
-                        return new TokenInfo(LONG_LITERAL, buffer.toString(), line);
-                    } else if (ch == 'd' || ch == 'D') {
-                        buffer.append(ch);
-                        nextCh();
-                        return new TokenInfo(DOUBLE_LITERAL, buffer.toString(), line);
-                    }
-                
-                    // determine type based on format
-                    if (buffer.indexOf(".") >= 0 || buffer.indexOf("e") >= 0 || buffer.indexOf("E") >= 0) {
-                        return new TokenInfo(DOUBLE_LITERAL, buffer.toString(), line);
+                        buffer.append(exponent());
                     }
                     
-                    return new TokenInfo(INT_LITERAL, buffer.toString(), line);
+                    // Handle d/D suffix
+                    if (ch == 'd' || ch == 'D') {
+                        buffer.append(ch);
+                        nextCh();
+                    }
+                    
+                    return new TokenInfo(DOUBLE_LITERAL, buffer.toString(), line);
+                }
+                
+                // Handle exponent (double literal part 3)
+                if (ch == 'e' || ch == 'E') {
+                    buffer.append(exponent());
+                    
+                    // Optional d/D suffix
+                    if (ch == 'd' || ch == 'D') {
+                        buffer.append(ch);
+                        nextCh();
+                    }
+                    
+                    return new TokenInfo(DOUBLE_LITERAL, buffer.toString(), line);
+                }
+                
+                // Handle d/D suffix (double literal part 4)
+                if (ch == 'd' || ch == 'D') {
+                    buffer.append(ch);
+                    nextCh();
+                    return new TokenInfo(DOUBLE_LITERAL, buffer.toString(), line);
+                }
+                
+                // If none of the above, it's a regular int literal
+                return new TokenInfo(INT_LITERAL, buffer.toString(), line);
             default:
                 if (isIdentifierStart(ch)) {
                     buffer = new StringBuilder();
@@ -452,6 +428,52 @@ class Scanner {
                     return getNextToken();
                 }
         }
+    }
+
+    /**
+     * Scans and returns a string of digits starting at the current character,
+     * which must be a digit.
+     *
+     * @return a string of digits.
+     */
+    private String digits() {
+        StringBuilder buffer = new StringBuilder();
+        while (isDigit(ch)) {
+            buffer.append(ch);
+            nextCh();
+        }
+        return buffer.toString();
+    }
+
+    /**
+     * Scans and returns an exponent (e.g., "e+10", "E-5") starting at the current 
+     * character, which must be 'e' or 'E'.
+     *
+     * @return a string representation of the exponent.
+     */
+    private String exponent() {
+        StringBuilder buffer = new StringBuilder();
+        
+        // Append 'e' or 'E'
+        buffer.append(ch);
+        nextCh();
+        
+        // Optional sign
+        if (ch == '+' || ch == '-') {
+            buffer.append(ch);
+            nextCh();
+        }
+        
+        // Must have at least one digit after e/E
+        if (!isDigit(ch)) {
+            reportScannerError("Invalid exponent - must have at least one digit");
+            return buffer.toString();
+        }
+        
+        // Read all digits
+        buffer.append(digits());
+        
+        return buffer.toString();
     }
 
     /**
