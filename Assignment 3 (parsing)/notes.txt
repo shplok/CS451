@@ -39,22 +39,31 @@ JBreakStatement.
 
 Goal: Add Support for a Continue Statement
 
-Approach: ... 
+Approach: This approach was identical to the break statement, just changing some semantic things to match continue. 
 
 [Problem 6 (Switch Statement)]
 
-Goal: ... 
+Goal: Add support for a switch case statment.
 
-Approach: ... 
+Approach: I first added the required methods. 
+I then created the switchBlockStatementGroup() method which parses one or more case/default labels followed by 
+their associated statements. I implemented the switchLabel() method to return expressions for case labels and null for 
+default labels. I modified the statement() method to recognize the SWITCH keyword and construct JSwitchStatement 
+objects with the appropriate condition and statement groups. Finally, I ensured this implementation works with 
+the existing SwitchStatementGroup class to correctly represent switch statements in the AST. This problem was really
+difficult, even moreso than the for loop. Im glad to be done with it.
 
 2. Did you receive any help? List the sources along with a short description of the help received.
 
 Source                               Help Received
 ------                               -------------
 
-...                                  ...
+N/A                              
 
 3. List any other comments here. Feel free to provide any feedback on how much you learned from
 doing the assignment, and whether you enjoyed doing it.
 
-...
+The for loop code was super tough to get all figured out to fit specifically with the odd conditions provided in the
+ast. I had the for loop problem complete for a couple of iterations before I was able to get it to work with the
+rest of my code for some reason. I would have appreciated a bit more guidance on specific semantic nuances, but other
+than that, good assignment!

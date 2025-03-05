@@ -404,6 +404,17 @@ class Parser {
             }
             return new JForStatement(line, inits, expr, updates, statement());
 
+        } else if (have(SWITCH)) {
+            // implement switch case
+            ArrayList<SwitchStatementGroup> switchBlockStatementGroups = new ArrayList<>();
+            JExpression parExpression = parExpression();
+            mustBe(LCURLY);
+            while (!see(RCURLY) && !see(EOF)) {
+                switchBlockStatementGroups.add(switchBlockStatementGroup());
+            }
+            // after parsing switch case, look for closing curly brace
+            mustBe(RCURLY);
+            return new JSwitchStatement(line, parExpression, switchBlockStatementGroups);            
         } else {
             // Must be a statementExpression.
             JStatement statement = statementExpression();
@@ -463,7 +474,56 @@ class Parser {
         return updates;
     }
 
+    /**
+     * Parses a switch block statement group and returns an AST for it.
+     *
+     * <pre>
+     *   switchBlockStatementGroup ::= switchLabel { blockStatement }
+     * </pre>
+     *
+     * @return an AST for a switch block statement group.
+     */
+    private SwitchStatementGroup switchBlockStatementGroup() {
+        // init two array lists
+        ArrayList<JExpression> switchLabels = new ArrayList<>();
+        ArrayList<JStatement> blockStatements = new ArrayList<>();
+    
+        switchLabels.add(switchLabel()); // The first switch label
+        while (see(CASE) || see(DEFAULT)) // 0 or more following labels
+            switchLabels.add(switchLabel());
+    
+        while (!see(CASE) && !see(DEFAULT) && !see(RCURLY))
+            blockStatements.add(blockStatement());
+    
+        return new SwitchStatementGroup(switchLabels, blockStatements);
+    }
+    
 
+    /**
+     * Parses a switch label and returns an AST for it.
+     *
+     * <pre>
+     *   switchLabel ::= CASE expression COLON
+     *                 | DEFAULT COLON
+     * </pre>
+     *
+     * @return an expression for CASE, null for DEFAULT.
+     */
+    private JExpression switchLabel() {
+        if (have(CASE)) {
+            // For CASE, return the expression
+            JExpression label = expression();
+            mustBe(COLON);
+            return label;
+        } else if (have(DEFAULT)) {
+            // For DEFAULT, return null
+            mustBe(COLON);
+            return null;
+        } else {
+            reportParserError("case or default label sought where %s found", scanner.token().image());
+            return null;
+        }
+    }
 
     /**
      * Parses and returns a list of formal parameters.
