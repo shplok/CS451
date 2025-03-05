@@ -407,14 +407,15 @@ class Parser {
         } else if (have(SWITCH)) {
             // implement switch case
             ArrayList<SwitchStatementGroup> switchBlockStatementGroups = new ArrayList<>();
-            JExpression parExpression = parExpression();
+            JExpression par = parExpression();
             mustBe(LCURLY);
+            // while we havent seen the end of file or switch case has closed:
             while (!see(RCURLY) && !see(EOF)) {
                 switchBlockStatementGroups.add(switchBlockStatementGroup());
             }
             // after parsing switch case, look for closing curly brace
             mustBe(RCURLY);
-            return new JSwitchStatement(line, parExpression, switchBlockStatementGroups);            
+            return new JSwitchStatement(line, par, switchBlockStatementGroups);            
         } else {
             // Must be a statementExpression.
             JStatement statement = statementExpression();
@@ -484,18 +485,18 @@ class Parser {
      * @return an AST for a switch block statement group.
      */
     private SwitchStatementGroup switchBlockStatementGroup() {
-        // init two array lists
-        ArrayList<JExpression> switchLabels = new ArrayList<>();
-        ArrayList<JStatement> blockStatements = new ArrayList<>();
+        // init
+        ArrayList<JExpression> switchIdentifier = new ArrayList<>();
     
-        switchLabels.add(switchLabel()); // The first switch label
-        while (see(CASE) || see(DEFAULT)) // 0 or more following labels
-            switchLabels.add(switchLabel());
-    
+        switchIdentifier.add(switchLabel());
+        while (see(CASE) || see(DEFAULT))
+            switchIdentifier.add(switchLabel());
+        // init
+        ArrayList<JStatement> blockStatement = new ArrayList<>();
         while (!see(CASE) && !see(DEFAULT) && !see(RCURLY))
-            blockStatements.add(blockStatement());
+            blockStatement.add(blockStatement());
     
-        return new SwitchStatementGroup(switchLabels, blockStatements);
+        return new SwitchStatementGroup(switchIdentifier, blockStatement);
     }
     
 
