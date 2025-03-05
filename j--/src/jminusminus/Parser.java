@@ -331,6 +331,16 @@ class Parser {
         if (see(LCURLY)) {
             return block();
 
+        } else if (have(BREAK)) {
+            // Add support for break statment
+            mustBe(SEMI);
+            return new JBreakStatement(line);
+            
+        }  else if (have(CONTINUE)) {
+            // Add support for continue statement
+            mustBe(SEMI);
+            return new JContinueStatement(line);
+            
         } else if (have(DO)) {
             // Start with the block since we know do-while needs a compound statement
             JStatement body = statement();
@@ -369,6 +379,31 @@ class Parser {
             JExpression test = parExpression();
             JStatement statement = statement();
             return new JWhileStatement(line, test, statement);
+        } else if (have(FOR)) {
+            mustBe(LPAREN);
+            ArrayList<JStatement> inits = null;
+            if (!see(SEMI)) {
+                inits = forInit();
+                mustBe(SEMI);
+            } else {
+                mustBe(SEMI);
+            }
+            JExpression expr = null;
+            if (!see(SEMI)) {
+                expr = expression();
+                mustBe(SEMI);
+            } else {
+                mustBe(SEMI);
+            }
+            ArrayList<JStatement> updates = null;
+            if (!see(RPAREN)) {
+                updates = forUpdate();
+                mustBe(RPAREN);
+            } else {
+                mustBe(RPAREN);
+            }
+            return new JForStatement(line, inits, expr, updates, statement());
+
         } else {
             // Must be a statementExpression.
             JStatement statement = statementExpression();
@@ -376,6 +411,59 @@ class Parser {
             return statement;
         }
     }
+
+
+        /**
+     * Parses the initialization part of a for statement and returns a list of ASTs for it.
+     * 
+     * <pre>
+     *   forInit ::= variableDeclarators
+     *             | statementExpression { COMMA statementExpression }
+     * </pre>
+     * 
+     * @return a list of ASTs for the for initialization.
+     */
+    private ArrayList<JStatement> forInit() {
+        ArrayList<JStatement> initializers = new ArrayList<JStatement>();
+        
+        // Handle variable declaration case
+        if (seeLocalVariableDeclaration()) {
+            int line = scanner.token().line();
+            Type varType = type();
+            ArrayList<JVariableDeclarator> declarators = variableDeclarators(varType);
+            initializers.add(new JVariableDeclaration(line, declarators));
+            return initializers;
+        }
+        
+        // Handle statement expression case, possibly with multiple expressions
+        do {
+            initializers.add(statementExpression());
+        } while (have(COMMA));
+        
+        return initializers;
+    }
+
+    /**
+     * Parses the update part of a for statement and returns a list of ASTs for it.
+     * 
+     * <pre>
+     *   forUpdate ::= statementExpression { COMMA statementExpression }
+     * </pre>
+     * 
+     * @return a list of ASTs for the for update expressions.
+     */
+    private ArrayList<JStatement> forUpdate() {
+        ArrayList<JStatement> updates = new ArrayList<JStatement>();
+        
+        // Parse one or more statement expressions separated by commas
+        do {
+            updates.add(statementExpression());
+        } while (have(COMMA));
+        
+        return updates;
+    }
+
+
 
     /**
      * Parses and returns a list of formal parameters.
@@ -581,6 +669,12 @@ class Parser {
             return Type.CHAR;
         } else if (have(INT)) {
             return Type.INT;
+        } else if (have(LONG))  {
+            // add support for basic long type
+            return Type.LONG;
+        } else if (have(DOUBLE)) {
+            // add Support for basic double type
+            return Type.DOUBLE;
         } else {
             reportParserError("type sought where %s found", scanner.token().image());
             return Type.ANY;
@@ -675,6 +769,18 @@ class Parser {
             return new JAssignOp(line, lhs, assignmentExpression());
         } else if (have(PLUS_ASSIGN)) {
             return new JPlusAssignOp(line, lhs, assignmentExpression());
+        } else if (have(MINUS_ASSIGN)) {
+            // add support for -=
+            return new JMinusAssignOp(line, lhs, assignmentExpression());
+        } else if (have(STAR_ASSIGN)) {
+            // add support for *=
+            return new JStarAssignOp(line, lhs, assignmentExpression());
+        } else if (have(DIV_ASSIGN)) {
+            // add support for /=
+            return new JDivAssignOp(line, lhs, assignmentExpression());
+        } else if (have(REM_ASSIGN)) {
+            // add support for %=
+            return new JRemAssignOp(line, lhs, assignmentExpression());    
         } else {
             return lhs;
         }
@@ -698,9 +804,12 @@ class Parser {
             mustBe(COLON);
             JExpression elsePart = conditionalExpression();
             return new JConditionalExpression(line, lhs, thenPart, elsePart);
+        } else if (have(LOR)) {
+            // add support for logical or, i.e. ||
+            return new JLogicalOrOp(line, lhs, conditionalExpression());
         }
         return lhs;
-}
+    }
 
     /**
      * Parses a conditional-and expression and returns an AST for it.
@@ -741,6 +850,9 @@ class Parser {
         while (more) {
             if (have(EQUAL)) {
                 lhs = new JEqualOp(line, lhs, relationalExpression());
+            } else if (have(NOT_EQUAL)) {
+                // add support for != operator
+                lhs = new JNotEqualOp(line, lhs, relationalExpression());
             } else {
                 more = false;
             }
@@ -766,6 +878,12 @@ class Parser {
                 lhs = new JGreaterThanOp(line, lhs, additiveExpression());
             } else if (have(LE)) {
                 lhs = new JLessEqualOp(line, lhs, additiveExpression());
+            } else if (have(GE)) {
+                // add support for greater than or equal >= operator
+                lhs = new JGreaterEqualOp(line, lhs, additiveExpression());
+            } else if (have(LT)) {
+                // add support for logical less than < operator
+                lhs = new JLessThanOp(line, lhs, additiveExpression());
             } else {
                 more = false;
             }
@@ -845,6 +963,9 @@ class Parser {
             return new JNegateOp(line, unaryExpression());
         } else if (have(PLUS)) {
             return new JUnaryPlusOp(line, unaryExpression());
+        } else if (have(DEC)) {
+            // Add support for --n
+            return new JPreDecrementOp(line, unaryExpression());
         } else {
             return simpleUnaryExpression();
         }
@@ -895,6 +1016,10 @@ class Parser {
         }
         while (have(DEC)) {
             primaryExpr = new JPostDecrementOp(line, primaryExpr);
+        }
+        // Add support for ++
+        while (have(INC)) {
+            primaryExpr = new JPostIncrementOp(line, primaryExpr);
         }
         return primaryExpr;
     }
@@ -1084,7 +1209,15 @@ class Parser {
             return new JLiteralString(line, scanner.previousToken().image());
         } else if (have(TRUE)) {
             return new JLiteralBoolean(line, scanner.previousToken().image());
-        } else {
+        } else if (have(LONG_LITERAL)) {
+            // add support for long literal
+            return new JLiteralLong(line, scanner.previousToken().image());
+        } else if (have(DOUBLE_LITERAL)) {
+            // add support for double literal
+            return new JLiteralDouble(line, scanner.previousToken().image());
+        }
+        
+        else {
             reportParserError("literal sought where %s found", scanner.token().image());
             return new JWildExpression(line);
         }
@@ -1239,7 +1372,8 @@ class Parser {
 
     // Returns true if we are looking at a basic type, and false otherwise.
     private boolean seeBasicType() {
-        return (see(BOOLEAN) || see(CHAR) || see(INT));
+        return (see(BOOLEAN) || see(CHAR) || see(INT) || see(LONG) || see(DOUBLE));
+        // 3/4/2025: added support for long and double basic type
     }
 
     // Returns true if we are looking at a reference type, and false otherwise.
@@ -1248,7 +1382,7 @@ class Parser {
             return true;
         } else {
             scanner.recordPosition();
-            if (have(BOOLEAN) || have(CHAR) || have(INT)) {
+            if (have(BOOLEAN) || have(CHAR) || have(INT) || have(LONG) || have(DOUBLE)) {
                 if (have(LBRACK) && see(RBRACK)) {
                     scanner.returnToPosition();
                     return true;

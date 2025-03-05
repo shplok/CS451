@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "BreakStatement",
+            "request": "launch",
+            "mainClass": "BreakStatement",
+            "projectName": "j--_1acf14d7"
+        },
+        {
+            "type": "java",
             "name": "GenSeq",
             "request": "launch",
             "mainClass": "GenSeq",

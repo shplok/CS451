@@ -1,0 +1,60 @@
+1. For each problem, state its goal in your own words and describe your approach to solve the 
+problem along with any issues you encountered and if/how you managed to solve those issues.
+
+[Problem 1 (Operators)]
+
+Goal: Add support for parsing certain operators provided in the writeup
+
+Approach: This problem was rather straightforward, I just essentially went to each method specified in the discussion.
+I then would look at each method's prior supported operators, and then try to follow that logic for the operator
+that I'm trying to add. I didnt run into any issues here at all, except for one part where I used JPreIncrementOp as
+opposed to JPostIncrementOp but that was luckily a rather speedy fix.
+
+[Problem 2 (Long and Double Basic Types)]
+
+Goal: .Add supprot for parsing Long and Double Basic types and literals
+
+Approach: Essentially the same as the first problem, I just went through the methods specified in the discussion.
+I then found types that were supported before, such as int, and then followed the logic for implementing them. This 
+problem didn't give me any problems
+
+[Problem 3 (For Statement)]
+
+Goal: Add Support for For loop
+
+Approach: This one was quite difficult, I tried my best to follow exactly what the discussion wanted, but I felt like 
+I could have done a bit better with a little more instruction. Regardless of that, I was able to accurately utilize
+the AST representation of the for statement in order to add support. After adding the support for the For loop, I went
+to statement and added the support there as well.
+
+[Problem 4 (Break Statement)]
+
+Goal: Add Support for a Break Statement
+
+Approach: This was leagues easier than the for loop, I literally just had to add simple support for break statement.
+All I needed to do was check to see if there was a break call, then make sure theres a semi, then call the 
+JBreakStatement.
+
+[Problem 5 (Continue Statement)]
+
+Goal: Add Support for a Continue Statement
+
+Approach: ... 
+
+[Problem 6 (Switch Statement)]
+
+Goal: ... 
+
+Approach: ... 
+
+2. Did you receive any help? List the sources along with a short description of the help received.
+
+Source                               Help Received
+------                               -------------
+
+...                                  ...
+
+3. List any other comments here. Feel free to provide any feedback on how much you learned from
+doing the assignment, and whether you enjoyed doing it.
+
+...
