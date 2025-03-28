@@ -1,0 +1,133 @@
+1. For each problem, state its goal in your own words and describe your approach to solve the 
+problem along with any issues you encountered and if/how you managed to solve those issues.
+
+[Problem 1 (Multiline Comment)]
+
+Goal: Add support for Multiline Comments in j--.jj
+
+Approach: I followed the pattern used for single-line comments and added new rules for multiline comments using the tag 
+<BEGIN_MULTILINE_COMMENT> with "/*" to start the comment state, <END_MULTILINE_COMMENT> with "*/" 
+to return to DEFAULT state, and <MULTILINE_COMMENT_CONTENT> to skip all content in between. 
+
+[Problem 2 (Reserved Words)]
+
+Goal: Add support for additional reserved words (break, case, continue, default, do, double, for, long, switch)
+
+Approach: I added these new keywords to the existing TOKEN section for reserved words, keeping the same format 
+used for other keywords. This was relatively straightforward as I just needed to add each new word following 
+the pattern with no particula challenges.
+
+[Problem 3 (Operators: Scanner)]
+
+Goal: Add new operators to the scanner (/, %, ?, :, -=, *=, /=, %=, !=, >=, <, ||)
+
+Approach: I added these operators to the TOKEN section for operators, following the same pattern as existing operators. 
+Each operator was defined with its literal representation, making sure to escape special characters when needed. 
+Some operators (like %) required escaping to avoid conflicts with JavaCC syntax. Compared to problem 5 though, this one
+was also straightforward.
+
+[Problem 4 (Literals)]
+
+Goal: Add support for long and double literals
+
+Approach: I implemented in these steps: 
+First I added LONG_LITERAL token that recognizes integers followed by 'l' or 'L', 
+Then, I implemented the DOUBLE_LITERAL token with four variants as specified in the assignment 
+This was also pretty straightforward in comparison to the following problems.
+
+
+[Problem 5 (Operators: Parser)]
+
+Goal: Add parser support for the operators added in Problem 3, mapping them to appropriate AST representations
+
+Approach: This problem gave me quite a bit of trouble, as I had one typo in the code that I totally overlooked. I First
+modified various expression parsing methods to handle the new operators: 
+multiplicativeExpression() for / and %, assignmentExpression() for -=, *=, /=, and %=, equalityExpression() for !=, 
+relationalExpression() for >= and <, added conditionalOrExpression() for ||, 
+and updated unaryExpression() and postfixExpression() for unary +, pre --, and post ++. 
+Each modification involved adding the appropriate token matching and creating the correct AST node for the operation.
+The one operator that gave me the most trouble was the LOR (||) operator. this is becuase I didnt rename one of the 
+ConditionalOrExpr instances, thus giving me unexpected logic.
+
+[Problem 6 (Long and Double Basic Types)]
+
+Goal: Add support for long and double as basic types
+
+Approach: I modified the basicType() method to recognize LONG and DOUBLE tokens and map them to the appropriate 
+Type objects. I also updated the literal() method to construct JLiteralLong and JLiteralDouble objects when a 
+long or double literal is encountered.
+
+[Problem 7 (Conditional Expression)]
+
+Goal: Add support for the conditional (ternary) operator expression
+
+Approach: This one was a breeze. I implemented the conditionalExpression() method that parses a 
+conditional AND expression followed by an optional ? expression : conditionalExpression part. 
+When the conditional part is present, it creates a JConditionalExpression AST node. 
+I then updated assignmentExpression() to call conditionalExpression() instead of conditionalAndExpression(). 
+The recursion in the grammar allows for nested conditional expressions. I was having so much trouble with problem 5 that
+after a long enough time of trying things out, I almost stumbled across the solution for problem 7.  Since conditionals 
+and the operators almost go hand in hand, once I had finished number 5, I was already on my way to getting progress on
+7 as well.
+
+[Problem 8 (Do Statement)]
+
+Goal: Add support for do-while loops
+
+Approach: I modified the statement() method to recognize the DO token followed by a statement body, 
+the WHILE keyword, a parenthesized expression condition, and a semicolon. This was quite easy since the grammar 
+for do-while is simple.
+
+[Problem 9 (For Statement)]
+
+Goal: Add support for for loops with initialization, condition, and update parts
+
+Approach: I implemented forInit() and forUpdate() methods to parse the initialization and update parts of for loops, 
+handling both variable declarations and statement expressions in the init section. 
+I then modified statement() to recognize the FOR token followed by parenthesized init, condition, and update parts, 
+and a statement body. The parsed components are used to create a JForStatement AST node. 
+Handling the different forms of initialization (both variable declarations and expressions) 
+was the most complex part of this implementation. This being said, this problem gave me the most trouble by far! I had
+a really hard time getting the helper methods to work as well as getting everything to function smoothly. I didnt realize
+but before, I had an issue with the implementation in which i forgot the "|" at the end of the for loop implementation.
+This caused me lots of issues in which I could not find the answer to. 
+
+[Problem 10 (Break Statement)]
+
+Goal: Add support for break statements in loops
+
+Approach: I modified the statement() method to recognize the BREAK token followed by a semicolon and create a 
+JBreakStatement AST node. This was the simplest implementation as it just required adding an alternative to statement().
+
+[Problem 11 (Continue Statement)]
+
+Goal: Add support for continue statements in loops
+
+Approach: Similar to break, all I had to do was just add an alternative in the statment() method, 
+creating a JContinueStatement AST node. This was also very simple.
+
+[Problem 12 (Switch Statement)]
+
+Goal: Add support for switch statements with case and default labels
+
+Approach: I implemented three components: 
+(1) the switchBlockStatementGroup() method to parse groups of labels and statements
+(2) the switchLabel() method to parse case and default labels
+(3) modified statement() to recognize the SWITCH token followed an expression in parens and a block of statments.
+The main challenge was correctly handling the structure of switch blocks, i.e. the lookahead for detecting case/default 
+labels versus statements. I originally had issues with the LOOKAHEAD syntax when trying to exclude specific tokens.
+
+
+2. Did you receive any help? List the sources along with a short description of the help received.
+
+Source                               Help Received
+------                               -------------
+
+N/A                                  N/A
+
+3. List any other comments here. Feel free to provide any feedback on how much you learned from
+doing the assignment, and whether you enjoyed doing it.
+
+I enjoyed this assignment, yet it felt a little stress inducing with the exam coming up. I felt like I really had to
+rush through the assignment, and so I dont feel like I was really able to fully analyze the ASTs as well as learn as
+much from this one as I had the other ones. This being said, I still enjoyed the assignment!

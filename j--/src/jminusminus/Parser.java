@@ -851,7 +851,7 @@ class Parser {
     * Parses a conditional expression and returns an AST for it.
      *
      * <pre>
-     *   conditionalExpression ::= conditionalAndExpression 
+     *   conditionalExpression ::= conditionalOrExpression 
      *       [ QUESTION expression COLON conditionalExpression ]
      * </pre>
      *
@@ -859,18 +859,40 @@ class Parser {
      */
     private JExpression conditionalExpression() {
         int line = scanner.token().line();
-        JExpression lhs = conditionalAndExpression();
+        JExpression lhs = conditionalOrExpression();
         if (have(QUESTION)) {
             JExpression thenPart = expression();
             mustBe(COLON);
             JExpression elsePart = conditionalExpression();
             return new JConditionalExpression(line, lhs, thenPart, elsePart);
-        } else if (have(LOR)) {
-            // add support for logical or, i.e. ||
-            return new JLogicalOrOp(line, lhs, conditionalExpression());
         }
         return lhs;
     }
+
+        /**
+     * Parses a conditional-or expression and returns an AST for it.
+     *
+     * <pre>
+     *   conditionalOrExpression ::= conditionalAndExpression
+     *                                    { LOR conditionalAndExpression }
+     * </pre>
+     *
+     * @return an AST for a conditional-or expression.
+     */
+    private JExpression conditionalOrExpression() {
+        int line = scanner.token().line();
+        boolean more = true;
+        JExpression lhs = conditionalAndExpression();
+        while (more) {
+            if (have(LOR)) {
+                lhs = new JLogicalOrOp(line, lhs, conditionalAndExpression());
+            } else {
+                more = false;
+            }
+        }
+        return lhs;
+    }
+
 
     /**
      * Parses a conditional-and expression and returns an AST for it.
