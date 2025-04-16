@@ -1,0 +1,50 @@
+1. For each problem, state its goal in your own words and describe your approach to solve the 
+problem along with any issues you encountered and if/how you managed to solve those issues.
+
+[ Problem 1 (Operators)]
+
+Goal: ... 
+
+Approach: ... 
+
+[Problem 2 (Long and Double Basic Types)]
+
+Goal: ... 
+
+Approach: ... 
+
+[Problem 3 (For Statement)]
+
+Goal: ... 
+
+Approach: ... 
+
+[Problem 4 (Break Statement)]
+
+Goal: ... 
+
+Approach: ... 
+
+[Problem 5 (Continue Statement)]
+
+Goal: ... 
+
+Approach: ... 
+
+[Problem 6 (Switch Statement)]
+
+Goal: ...  
+ 
+Approach: ...  
+
+ 2. Did you receive any help? List the sources along with a short description of the help received.
+
+Source                               Help Received
+------                               -------------
+
+...                                  ...
+
+3. List any other comments here. Feel free to provide any feedback on how much you learned from
+doing the assignment, and whether you enjoyed doing it.
+
+...

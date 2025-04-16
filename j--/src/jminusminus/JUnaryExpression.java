@@ -1,11 +1,13 @@
 package jminusminus;
 
+import static jminusminus.CLConstants.DNEG;
 import static jminusminus.CLConstants.GOTO;
 import static jminusminus.CLConstants.IADD;
 import static jminusminus.CLConstants.ICONST_0;
 import static jminusminus.CLConstants.ICONST_1;
 import static jminusminus.CLConstants.INEG;
 import static jminusminus.CLConstants.ISUB;
+import static jminusminus.CLConstants.LNEG;
 
 /**
  * This abstract base class is the AST node for a unary expression --- an expression with a single operand.
@@ -113,8 +115,15 @@ class JNegateOp extends JUnaryExpression {
      */
     public JExpression analyze(Context context) {
         operand = operand.analyze(context);
-        operand.type().mustMatchExpected(line(), Type.INT);
-        type = Type.INT;
+        if (operand.type() == Type.INT) {
+            type = Type.INT;
+        }
+        else if (operand.type() == Type.LONG) {
+            type = Type.LONG;
+        }
+        else if (operand.type() == Type.DOUBLE) {
+            type = Type.DOUBLE;
+        }
         return this;
     }
 
@@ -123,7 +132,15 @@ class JNegateOp extends JUnaryExpression {
      */
     public void codegen(CLEmitter output) {
         operand.codegen(output);
-        output.addNoArgInstruction(INEG);
+        if (type == Type.INT) {
+            output.addNoArgInstruction(INEG);
+        }
+        else if (type == Type.LONG) {
+            output.addNoArgInstruction(LNEG);
+        }
+        else if (type == Type.DOUBLE) {
+            output.addNoArgInstruction(DNEG);
+        }
     }
 }
 
@@ -256,8 +273,16 @@ class JUnaryPlusOp extends JUnaryExpression {
      */
     public JExpression analyze(Context context) {
         operand = (JExpression) operand.analyze(context);
-        operand.type().mustMatchExpected(line(), Type.INT);
-        type = Type.INT;
+        if (operand.type() == Type.INT) {
+            type = Type.INT;
+        }
+        else if (operand.type() == Type.LONG) {
+            type = Type.LONG;
+        }
+        else if (operand.type() == Type.DOUBLE) {
+            type = Type.DOUBLE;
+        }
+        
         return this;
     }
 
@@ -287,7 +312,14 @@ class JPostIncrementOp extends JUnaryExpression {
      * {@inheritDoc}
      */
     public JExpression analyze(Context context) {
-        // TODO
+        if (!(operand instanceof JLhs)) {
+            JAST.compilationUnit.reportSemanticError(line, "Operand to ++ must have an LValue.");
+            type = Type.ANY;
+        } else {
+            operand = (JExpression) operand.analyze(context);
+            operand.type().mustMatchExpected(line(), Type.INT);
+            type = Type.INT;
+        }
         return this;
     }
 
@@ -295,7 +327,24 @@ class JPostIncrementOp extends JUnaryExpression {
      * {@inheritDoc}
      */
     public void codegen(CLEmitter output) {
-        // TODO
+        if (operand instanceof JVariable) {
+            int offset = ((LocalVariableDefn) ((JVariable) operand).iDefn()).offset();
+            if (!isStatementExpression) {
+                
+                operand.codegen(output);
+            }
+            output.addIINCInstruction(offset, 1);
+        } else {
+            ((JLhs) operand).codegenLoadLhsLvalue(output);
+            ((JLhs) operand).codegenLoadLhsRvalue(output);
+            if (!isStatementExpression) {
+             
+                ((JLhs) operand).codegenDuplicateRvalue(output);
+            }
+            output.addNoArgInstruction(ICONST_1);
+            output.addNoArgInstruction(IADD);
+            ((JLhs) operand).codegenStore(output);
+        }
     }
 }
 
@@ -317,7 +366,14 @@ class JPreDecrementOp extends JUnaryExpression {
      * {@inheritDoc}
      */
     public JExpression analyze(Context context) {
-        // TODO
+        if (!(operand instanceof JLhs)) {
+            JAST.compilationUnit.reportSemanticError(line, "Operand to -- must have an LValue.");
+            type = Type.ANY;
+        } else {
+            operand = (JExpression) operand.analyze(context);
+            operand.type().mustMatchExpected(line(), Type.INT);
+            type = Type.INT;
+        }
         return this;
     }
 
@@ -325,6 +381,19 @@ class JPreDecrementOp extends JUnaryExpression {
      * {@inheritDoc}
      */
     public void codegen(CLEmitter output) {
-        // TODO
+        if (operand instanceof JVariable) {
+            int offset = ((LocalVariableDefn) ((JVariable) operand).iDefn()).offset();
+            output.addIINCInstruction(offset, -1);
+            if (!isStatementExpression) {
+                operand.codegen(output);
+            }
+        } else {
+            ((JLhs) operand).codegenLoadLhsLvalue(output);
+            ((JLhs) operand).codegenLoadLhsRvalue(output);
+            output.addNoArgInstruction(ICONST_1);
+            output.addNoArgInstruction(ISUB);
+            ((JLhs) operand).codegenDuplicateRvalue(output);
+            ((JLhs) operand).codegenStore(output);
+        }
     }
 }

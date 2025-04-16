@@ -1,10 +1,20 @@
 package jminusminus;
 
+import static jminusminus.CLConstants.DADD;
+import static jminusminus.CLConstants.DDIV;
+import static jminusminus.CLConstants.DMUL;
+import static jminusminus.CLConstants.DREM;
+import static jminusminus.CLConstants.DSUB;
 import static jminusminus.CLConstants.IADD;
 import static jminusminus.CLConstants.IDIV;
 import static jminusminus.CLConstants.IMUL;
 import static jminusminus.CLConstants.IREM;
 import static jminusminus.CLConstants.ISUB;
+import static jminusminus.CLConstants.LADD;
+import static jminusminus.CLConstants.LDIV;
+import static jminusminus.CLConstants.LMUL;
+import static jminusminus.CLConstants.LREM;
+import static jminusminus.CLConstants.LSUB;
 
 /**
  * This abstract base class is the AST node for a binary expression --- an expression with a binary operator and two
@@ -79,9 +89,22 @@ class JMultiplyOp extends JBinaryExpression {
     public JExpression analyze(Context context) {
         lhs = lhs.analyze(context);
         rhs = rhs.analyze(context);
-        lhs.type().mustMatchExpected(line(), Type.INT);
-        rhs.type().mustMatchExpected(line(), Type.INT);
-        type = Type.INT;
+
+        if (lhs.type == Type.INT) {
+            rhs.type().mustMatchExpected(line(), lhs.type() );
+            type = Type.INT;
+        }
+        else if (lhs.type == Type.LONG) {
+            rhs.type().mustMatchExpected(line(), lhs.type() );
+            type = Type.LONG;
+        }
+        else if (lhs.type == Type.DOUBLE) {
+            rhs.type().mustMatchExpected(line(), lhs.type() );
+            type = Type.DOUBLE;
+        }
+        // lhs.type().mustMatchExpected(line(), Type.INT);
+        // rhs.type().mustMatchExpected(line(), Type.INT);
+        // type = Type.INT;
         return this;
     }
 
@@ -91,7 +114,17 @@ class JMultiplyOp extends JBinaryExpression {
     public void codegen(CLEmitter output) {
         lhs.codegen(output);
         rhs.codegen(output);
-        output.addNoArgInstruction(IMUL);
+
+        if (type == Type.INT) {
+            output.addNoArgInstruction(IMUL);
+        }
+        else if (type == Type.LONG) {
+            output.addNoArgInstruction(LMUL);
+        }
+        else if (type == Type.DOUBLE) {
+            output.addNoArgInstruction(DMUL);
+        }
+        
     }
 }
 
@@ -120,9 +153,24 @@ class JPlusOp extends JBinaryExpression {
         if (lhs.type() == Type.STRING || rhs.type() == Type.STRING) {
             return (new JStringConcatenationOp(line, lhs, rhs)).analyze(context);
         } else {
-            lhs.type().mustMatchExpected(line(), Type.INT);
-            rhs.type().mustMatchExpected(line(), Type.INT);
-            type = Type.INT;
+
+            if (lhs.type == Type.INT) {
+                rhs.type().mustMatchExpected(line(), lhs.type() );
+                type = Type.INT;
+            }
+            else if (lhs.type == Type.LONG) {
+                rhs.type().mustMatchExpected(line(), lhs.type() );
+                type = Type.LONG;
+            }
+            else if (lhs.type == Type.DOUBLE) {
+                rhs.type().mustMatchExpected(line(), lhs.type() );
+                type = Type.DOUBLE;
+            }
+
+
+            // lhs.type().mustMatchExpected(line(), Type.INT);
+            // rhs.type().mustMatchExpected(line(), Type.INT);
+            // type = Type.INT;
         }
         return this;
     }
@@ -133,7 +181,16 @@ class JPlusOp extends JBinaryExpression {
     public void codegen(CLEmitter output) {
         lhs.codegen(output);
         rhs.codegen(output);
-        output.addNoArgInstruction(IADD);
+
+        if (type == Type.INT) {
+            output.addNoArgInstruction(IADD);
+        }
+        else if (type == Type.LONG) {
+            output.addNoArgInstruction(LADD);
+        }
+        else if (type == Type.DOUBLE) {
+            output.addNoArgInstruction(DADD);
+        }
     }
 }
 
@@ -158,9 +215,22 @@ class JSubtractOp extends JBinaryExpression {
     public JExpression analyze(Context context) {
         lhs = lhs.analyze(context);
         rhs = rhs.analyze(context);
-        lhs.type().mustMatchExpected(line(), Type.INT);
-        rhs.type().mustMatchExpected(line(), Type.INT);
-        type = Type.INT;
+
+        if (lhs.type == Type.INT) {
+            rhs.type().mustMatchExpected(line(), lhs.type() );
+            type = Type.INT;
+        }
+        else if (lhs.type == Type.LONG) {
+            rhs.type().mustMatchExpected(line(), lhs.type() );
+            type = Type.LONG;
+        }
+        else if (lhs.type == Type.DOUBLE) {
+            rhs.type().mustMatchExpected(line(), lhs.type() );
+            type = Type.DOUBLE;
+        }
+        // lhs.type().mustMatchExpected(line(), Type.INT);
+        // rhs.type().mustMatchExpected(line(), Type.INT);
+        // type = Type.INT;
         return this;
     }
 
@@ -170,7 +240,16 @@ class JSubtractOp extends JBinaryExpression {
     public void codegen(CLEmitter output) {
         lhs.codegen(output);
         rhs.codegen(output);
-        output.addNoArgInstruction(ISUB);
+
+        if (type == Type.INT) {
+            output.addNoArgInstruction(ISUB);
+        }
+        else if (type == Type.LONG) {
+            output.addNoArgInstruction(LSUB);
+        }
+        else if (type == Type.DOUBLE) {
+            output.addNoArgInstruction(DSUB);
+        }
     }
 }
 
@@ -195,9 +274,23 @@ class JDivideOp extends JBinaryExpression {
     public JExpression analyze(Context context) {
         lhs = (JExpression) lhs.analyze(context);
         rhs = (JExpression) rhs.analyze(context);
-        lhs.type().mustMatchExpected(line(), Type.INT);
-        rhs.type().mustMatchExpected(line(), Type.INT);
-        type = Type.INT;
+
+        if (lhs.type == Type.INT) {
+            rhs.type().mustMatchExpected(line(), lhs.type() );
+            type = Type.INT;
+        }
+        else if (lhs.type == Type.LONG) {
+            rhs.type().mustMatchExpected(line(), lhs.type() );
+            type = Type.LONG;
+        }
+        else if (lhs.type == Type.DOUBLE) {
+            rhs.type().mustMatchExpected(line(), lhs.type() );
+            type = Type.DOUBLE;
+        }
+
+        // lhs.type().mustMatchExpected(line(), Type.INT);
+        // rhs.type().mustMatchExpected(line(), Type.INT);
+        // type = Type.INT;
         return this;      
     }
 
@@ -207,7 +300,16 @@ class JDivideOp extends JBinaryExpression {
     public void codegen(CLEmitter output) {
         lhs.codegen(output);
         rhs.codegen(output);
-        output.addNoArgInstruction(IDIV);
+
+        if (type == Type.INT) {
+            output.addNoArgInstruction(IDIV);
+        }
+        else if (type == Type.LONG) {
+            output.addNoArgInstruction(LDIV);
+        }
+        else if (type == Type.DOUBLE) {
+            output.addNoArgInstruction(DDIV);
+        }
     }
 }
 
@@ -232,9 +334,22 @@ class JRemainderOp extends JBinaryExpression {
     public JExpression analyze(Context context) {
         lhs = (JExpression) lhs.analyze(context);
         rhs = (JExpression) rhs.analyze(context);
-        lhs.type().mustMatchExpected(line(), Type.INT);
-        rhs.type().mustMatchExpected(line(), Type.INT);
-        type = Type.INT;
+
+        if (lhs.type == Type.INT) {
+            rhs.type().mustMatchExpected(line(), lhs.type() );
+            type = Type.INT;
+        }
+        else if (lhs.type == Type.LONG) {
+            rhs.type().mustMatchExpected(line(), lhs.type() );
+            type = Type.LONG;
+        }
+        else if (lhs.type == Type.DOUBLE) {
+            rhs.type().mustMatchExpected(line(), lhs.type() );
+            type = Type.DOUBLE;
+        }
+        // lhs.type().mustMatchExpected(line(), Type.INT);
+        // rhs.type().mustMatchExpected(line(), Type.INT);
+        // type = Type.INT;
         return this;      
     }
 
@@ -244,7 +359,17 @@ class JRemainderOp extends JBinaryExpression {
     public void codegen(CLEmitter output) {
         lhs.codegen(output);
         rhs.codegen(output);
-        output.addNoArgInstruction(IREM);
+        
+        if (type == Type.INT) {
+            output.addNoArgInstruction(IREM);
+        }
+        else if (type == Type.LONG) {
+            output.addNoArgInstruction(LREM);
+        }
+        else if (type == Type.DOUBLE) {
+            output.addNoArgInstruction(DREM);
+        }
+        
     }
 }
 

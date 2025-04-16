@@ -1,7 +1,9 @@
 package jminusminus;
 
+import static jminusminus.CLConstants.IF_ICMPGE;
 import static jminusminus.CLConstants.IF_ICMPGT;
 import static jminusminus.CLConstants.IF_ICMPLE;
+import static jminusminus.CLConstants.IF_ICMPLT;
 
 /**
  * This abstract base class is the AST node for a comparison expression.
@@ -25,9 +27,23 @@ abstract class JComparisonExpression extends JBooleanBinaryExpression {
     public JExpression analyze(Context context) {
         lhs = lhs.analyze(context);
         rhs = rhs.analyze(context);
-        lhs.type().mustMatchExpected(line(), Type.INT);
-        rhs.type().mustMatchExpected(line(), lhs.type());
-        type = Type.BOOLEAN;
+
+        if (lhs.type() == Type.INT) {
+            rhs.type().mustMatchExpected(line(), lhs.type());
+            type = Type.BOOLEAN;
+        }
+        else if (lhs.type() == Type.DOUBLE) {
+            rhs.type().mustMatchExpected(line(), lhs.type());
+            type = Type.BOOLEAN;
+        }
+        else if (lhs.type() == Type.LONG) {
+            rhs.type().mustMatchExpected(line(), lhs.type());
+            type = Type.BOOLEAN;
+        }
+
+        // lhs.type().mustMatchExpected(line(), Type.INT);
+        // rhs.type().mustMatchExpected(line(), lhs.type());
+        // type = Type.BOOLEAN;
         return this;
     }
 }
@@ -103,7 +119,9 @@ class JGreaterEqualOp extends JComparisonExpression {
      * {@inheritDoc}
      */
     public void codegen(CLEmitter output, String targetLabel, boolean onTrue) {
-        // TODO
+        lhs.codegen(output);
+        rhs.codegen(output);
+        output.addBranchInstruction(onTrue ? IF_ICMPGE : IF_ICMPLT, targetLabel);
     }
 }
 
@@ -126,6 +144,8 @@ class JLessThanOp extends JComparisonExpression {
      * {@inheritDoc}
      */
     public void codegen(CLEmitter output, String targetLabel, boolean onTrue) {
-        // TODO
+        lhs.codegen(output);
+        rhs.codegen(output);
+        output.addBranchInstruction(onTrue ? IF_ICMPLT : IF_ICMPGE, targetLabel);
     }
 }

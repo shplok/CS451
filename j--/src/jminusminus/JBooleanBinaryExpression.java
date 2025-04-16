@@ -7,6 +7,7 @@ import static jminusminus.CLConstants.IF_ACMPEQ;
 import static jminusminus.CLConstants.IF_ACMPNE;
 import static jminusminus.CLConstants.IF_ICMPEQ;
 import static jminusminus.CLConstants.IF_ICMPNE;
+import static jminusminus.CLConstants.LCMP;
 
 /**
  * This abstract base class is the AST node for binary expressions that return booleans.
@@ -143,15 +144,28 @@ class JLogicalOrOp extends JBooleanBinaryExpression {
      * {@inheritDoc}
      */
     public JExpression analyze(Context context) {
-        // TODO
+        lhs = lhs.analyze(context);
+        rhs = rhs.analyze(context);
+        lhs.type().mustMatchExpected(line(), Type.BOOLEAN);
+        rhs.type().mustMatchExpected(line(), Type.BOOLEAN);
+        type = Type.BOOLEAN;
         return this;
+
     }
 
     /**
      * {@inheritDoc}
      */
     public void codegen(CLEmitter output, String targetLabel, boolean onTrue) {
-        // TODO
+        if (onTrue) {
+            String falseLabel = output.createLabel();
+            lhs.codegen(output, falseLabel, false);
+            rhs.codegen(output, targetLabel, true);
+            output.addLabel(falseLabel);
+        } else {
+            lhs.codegen(output, targetLabel, false);
+            rhs.codegen(output, targetLabel, false);
+        }
     }
 }
 
@@ -175,7 +189,11 @@ class JNotEqualOp extends JBooleanBinaryExpression {
      * {@inheritDoc}
      */
     public JExpression analyze(Context context) {
-        // TODO
+        lhs = (JExpression) lhs.analyze(context);
+        rhs = (JExpression) rhs.analyze(context);
+        lhs.type().mustMatchExpected(line(), rhs.type());
+        type = Type.BOOLEAN;
+
         return this;
     }
 
@@ -183,6 +201,18 @@ class JNotEqualOp extends JBooleanBinaryExpression {
      * {@inheritDoc}
      */
     public void codegen(CLEmitter output, String targetLabel, boolean onTrue) {
-        // TODO
+        lhs.codegen(output);
+        rhs.codegen(output);
+        if (lhs.type().isReference())
+            output.addBranchInstruction(onTrue ? IF_ACMPNE : IF_ACMPEQ, targetLabel);
+        else {
+            if (lhs.type() == Type.LONG) {
+                output.addNoArgInstruction(LCMP);
+                output.addNoArgInstruction(ICONST_1);
+                output.addBranchInstruction(onTrue ? IF_ICMPNE : IF_ICMPEQ, targetLabel);
+            } else {
+                output.addBranchInstruction(onTrue ? IF_ICMPNE : IF_ICMPEQ, targetLabel);
+            }
+        }
     }
 }
