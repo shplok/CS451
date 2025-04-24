@@ -3,48 +3,82 @@ problem along with any issues you encountered and if/how you managed to solve th
 
 [ Problem 1 (Operators)]
 
-Goal: ... 
+Goal: To add support for additional operators: -=, *=, /=, %=, !=, >=, <, ||, ++, and -- 
+by modifying different expression classes to handle different data
 
-Approach: ... 
+Approach: I implemented the required operators by modifying the analyze() and codegen() methods of each respective class. 
+For binary expressions like JMultiplyOp and JPlusOp, I extended the type checking to support int, long, and double types. 
+For comparison operators like JNotEqualOp, I ensured they returned boolean values while accepting numeric operands. 
+
+One big challenge I encountered was ensuring correct type checking across various operators. 
+I resolved this by checking the left-hand side's type and ensuring the right-hand side matched, 
+setting the resulting expression type accordingl.y 
 
 [Problem 2 (Long and Double Basic Types)]
 
-Goal: ... 
+Goal: Add support for long and double basic types.
 
-Approach: ... 
+Approach: I implemented JLiteralLong and JLiteralDouble classes for handling long and double literals. 
+The critical part was modifying JMethodDeclaration, JConstructorDeclaration, and JVariableDeclaration to skip an extra offset 
+for longs and doubles since they occupy two slots in the JVM's local variable array.
+
+The main challenge was getting the order of operations correct.
+I needed to increment the offset after creating the definition but before adding it to the context. 
 
 [Problem 3 (For Statement)]
 
-Goal: ... 
+Goal: Implement a for statement with initialization, condition, update, and body components, 
+creating a local context for the statement and generating appropriate bytecode.
 
-Approach: ... 
+Approach: I implemented the JForStatement class with an analyze() method that creates a new LocalContext and analyzes each component 
+For codegen(), I generated labels for condition checking, loop continuation, and loop exit, and added appropriate branch instructions.
+A challenge i had was handling potentially null components (for infinite loops like for(;;)) which I addressed by adding null checks. 
 
 [Problem 4 (Break Statement)]
 
-Goal: ... 
+Goal: Implement break statement functionality by extending control flow statements with break support and 
+maintaining a stack of enclosing statements.
 
-Approach: ... 
+Approach: I added boolean hasBreak and String breakLabel fields to all loop and switch statements. 
+In JBreakStatement, I implemented analyze() to find the enclosing statement via JMember.enclosingStatement.peek() and set its hasBreak flag. 
+For codegen(), I accessed the enclosing statement's breakLabel and generated an unconditional jump to it.
+
+The main challenge was maintaining the stack of enclosing statements. Each control flow statement needed to push itself onto the stack 
+upon entry and pop upon exit during analysis.
 
 [Problem 5 (Continue Statement)]
 
-Goal: ... 
+Goal: Add continue statement support similar to break, but with jumps to continuation points instead of exit points in loops.
 
-Approach: ... 
+Approach: I implemented JContinueStatement similarly to JBreakStatement, but with hasContinue and continueLabel fields in loop statements. 
+For each loop type, I set the continueLabel to an appropriate point: before the update in for loops and at the 
+condition test in while/do-while loops.
 
 [Problem 6 (Switch Statement)]
 
-Goal: ...  
+Goal: Implement switch statements with support for both TABLESWITCH and LOOKUPSWITCH bytecode instructions, 
+choosing between them based on case density.
  
-Approach: ...  
+Approach: I began with implemening JSwitchStatement with analyze() that verifies the condition is an integer and case labels are integer literals. 
+In codegen(), I collected case values and labels, calculated lo, hi, and nLabels for the heuristic, 
+then decided between TABLESWITCH and LOOKUPSWITCH based on the given formula.
+
+One issue I ran into was correctly handling the CLEmitter method signatures for TABLESWITCH and LOOKUPSWITCH. 
+I needed to use ArrayList<String> for tableLabels and TreeMap<Integer, String> for lookupswitch. 
+I also had to ensure correct label generation and placement for fall-through cases and the default case. 
 
  2. Did you receive any help? List the sources along with a short description of the help received.
 
 Source                               Help Received
 ------                               -------------
 
-...                                  ...
+Sample code in GenTableSwitch.java   Provided examples of how to use the CLEmitter API for generating switch instructions.
+and GenLookupSwitch.java            
 
 3. List any other comments here. Feel free to provide any feedback on how much you learned from
 doing the assignment, and whether you enjoyed doing it.
 
-...
+The project was quite fun, but also very difficult and took me a lot of time to get the ball rolling. 
+One thing I hoped to have a bit more help of would be info regarding where the class info was stored.
+I spent a lot of time looking through project files trying to find where everything was, and it felt like the difficulty of the assignment
+was inflated artifically because of that.

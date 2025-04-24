@@ -6,8 +6,11 @@ import static jminusminus.CLConstants.AASTORE;
 import static jminusminus.CLConstants.ANEWARRAY;
 import static jminusminus.CLConstants.BASTORE;
 import static jminusminus.CLConstants.CASTORE;
+import static jminusminus.CLConstants.DASTORE;
 import static jminusminus.CLConstants.DUP;
 import static jminusminus.CLConstants.IASTORE;
+import static jminusminus.CLConstants.LASTORE;
+import static jminusminus.CLConstants.LSTORE;
 import static jminusminus.CLConstants.NEWARRAY;
 
 /**
@@ -79,6 +82,10 @@ class JArrayInitializer extends JExpression {
             // Store the initial value in the array.
             if (componentType == Type.INT) {
                 output.addNoArgInstruction(IASTORE);
+            } else if (componentType == Type.LONG) {
+                output.addNoArgInstruction(LASTORE);
+            } else if (componentType == Type.DOUBLE) {
+                output.addNoArgInstruction(DASTORE);
             } else if (componentType == Type.BOOLEAN) {
                 output.addNoArgInstruction(BASTORE);
             } else if (componentType == Type.CHAR) {

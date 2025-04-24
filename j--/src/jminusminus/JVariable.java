@@ -10,6 +10,16 @@ import static jminusminus.CLConstants.ASTORE_0;
 import static jminusminus.CLConstants.ASTORE_1;
 import static jminusminus.CLConstants.ASTORE_2;
 import static jminusminus.CLConstants.ASTORE_3;
+import static jminusminus.CLConstants.DLOAD;
+import static jminusminus.CLConstants.DLOAD_0;
+import static jminusminus.CLConstants.DLOAD_1;
+import static jminusminus.CLConstants.DLOAD_2;
+import static jminusminus.CLConstants.DLOAD_3;
+import static jminusminus.CLConstants.DSTORE;
+import static jminusminus.CLConstants.DSTORE_0;
+import static jminusminus.CLConstants.DSTORE_1;
+import static jminusminus.CLConstants.DSTORE_2;
+import static jminusminus.CLConstants.DSTORE_3;
 import static jminusminus.CLConstants.DUP;
 import static jminusminus.CLConstants.IFEQ;
 import static jminusminus.CLConstants.IFNE;
@@ -23,6 +33,16 @@ import static jminusminus.CLConstants.ISTORE_0;
 import static jminusminus.CLConstants.ISTORE_1;
 import static jminusminus.CLConstants.ISTORE_2;
 import static jminusminus.CLConstants.ISTORE_3;
+import static jminusminus.CLConstants.LLOAD;
+import static jminusminus.CLConstants.LLOAD_0;
+import static jminusminus.CLConstants.LLOAD_1;
+import static jminusminus.CLConstants.LLOAD_2;
+import static jminusminus.CLConstants.LLOAD_3;
+import static jminusminus.CLConstants.LSTORE;
+import static jminusminus.CLConstants.LSTORE_0;
+import static jminusminus.CLConstants.LSTORE_1;
+import static jminusminus.CLConstants.LSTORE_2;
+import static jminusminus.CLConstants.LSTORE_3;
 
 /**
  * The AST node for an identifier used as a primary expression.
@@ -134,6 +154,42 @@ class JVariable extends JExpression implements JLhs {
                         output.addOneArgInstruction(ALOAD, offset);
                         break;
                 }
+            } else if (type == Type.LONG) {
+                switch (offset) {
+                    case 0:
+                        output.addNoArgInstruction(LLOAD_0);
+                        break;
+                    case 1:
+                        output.addNoArgInstruction(LLOAD_1);
+                        break;
+                    case 2:
+                        output.addNoArgInstruction(LLOAD_2);
+                        break;
+                    case 3:
+                        output.addNoArgInstruction(LLOAD_3);
+                        break;
+                    default:
+                        output.addOneArgInstruction(LLOAD, offset);
+                        break;
+                }
+            } else if (type == Type.DOUBLE) {
+                switch (offset) {
+                    case 0:
+                        output.addNoArgInstruction(DLOAD_0);
+                        break;
+                    case 1:
+                        output.addNoArgInstruction(DLOAD_1);
+                        break;
+                    case 2:
+                        output.addNoArgInstruction(DLOAD_2);
+                        break;
+                    case 3:
+                        output.addNoArgInstruction(DLOAD_3);
+                        break;
+                    default:
+                        output.addOneArgInstruction(DLOAD, offset);
+                        break;
+                }
             } else {
                 // Primitive types.
                 if (type == Type.INT || type == Type.BOOLEAN || type == Type.CHAR) {
@@ -215,6 +271,42 @@ class JVariable extends JExpression implements JLhs {
                         break;
                     default:
                         output.addOneArgInstruction(ASTORE, offset);
+                        break;
+                }
+            } else if (type == Type.LONG) {
+                switch (offset) {
+                    case 0:
+                        output.addNoArgInstruction(LSTORE_0);
+                        break;
+                    case 1:
+                        output.addNoArgInstruction(LSTORE_1);
+                        break;
+                    case 2:
+                        output.addNoArgInstruction(LSTORE_2);
+                        break;
+                    case 3:
+                        output.addNoArgInstruction(LSTORE_3);
+                        break;
+                    default:
+                        output.addOneArgInstruction(LSTORE, offset);
+                        break;
+                }
+            } else if (type == Type.DOUBLE) {
+                switch (offset) {
+                    case 0:
+                        output.addNoArgInstruction(DSTORE_0);
+                        break;
+                    case 1:
+                        output.addNoArgInstruction(DSTORE_1);
+                        break;
+                    case 2:
+                        output.addNoArgInstruction(DSTORE_2);
+                        break;
+                    case 3:
+                        output.addNoArgInstruction(DSTORE_3);
+                        break;
+                    default:
+                        output.addOneArgInstruction(DSTORE, offset);
                         break;
                 }
             } else {

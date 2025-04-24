@@ -57,21 +57,31 @@ class JConstructorDeclaration extends JMethodDeclaration {
      * {@inheritDoc}
      */
     public JAST analyze(Context context) {
-        definingClass = (JClassDeclaration) (context.classContext().definition());
-        this.context = new MethodContext(context, isStatic, returnType);
+        MethodContext methodContext = new MethodContext(context, isStatic, returnType);
+        this.context = methodContext;
 
-        // Offset 0 is used to address "this".
-        this.context.nextOffset();
+        if (!isStatic) {
+            // Offset 0 is used to address "this".
+            this.context.nextOffset();
+        }
 
         // Declare the parameters. We consider a formal parameter to be always initialized, via a method call.
         for (JFormalParameter param : params) {
             LocalVariableDefn defn = new LocalVariableDefn(param.type(), this.context.nextOffset());
             defn.initialize();
             this.context.addEntry(param.line(), param.name(), defn);
+            
+            // Skip an extra offset for long and double types
+            if (param.type() == Type.LONG || param.type() == Type.DOUBLE) {
+                this.context.nextOffset();
+            }
         }
 
         if (body != null) {
             body = body.analyze(this.context);
+            if (returnType != Type.VOID && !methodContext.methodHasReturn()) {
+                JAST.compilationUnit.reportSemanticError(line(), "non-void method must have a return statement");
+            }
         }
         return this;
     }

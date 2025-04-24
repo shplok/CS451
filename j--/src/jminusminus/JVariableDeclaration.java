@@ -32,18 +32,24 @@ class JVariableDeclaration extends JStatement {
         for (JVariableDeclarator decl : decls) {
             // Local variables are declared here (fields are declared in preAnalyze()).
             int offset = ((LocalContext) context).nextOffset();
-            LocalVariableDefn defn = new LocalVariableDefn(decl.type().resolve(context), offset);
-
+            Type type = decl.type().resolve(context);
+            LocalVariableDefn defn = new LocalVariableDefn(type, offset);
+    
             // First, check for shadowing.
             Defn previousDefn = context.lookup(decl.name());
             if (previousDefn instanceof LocalVariableDefn) {
                 JAST.compilationUnit.reportSemanticError(decl.line(),
                         "the variable " + decl.name() + " shadows another local variable");
             }
-
+            
+            // Skip an extra offset for long and double types BEFORE adding to context
+            if (type == Type.LONG || type == Type.DOUBLE) {
+                ((LocalContext) context).nextOffset();
+            }
+    
             // Declare it in the local context.
             context.addEntry(decl.line(), decl.name(), defn);
-
+    
             // Turn initialization into assignment statement and analyze it.
             if (decl.initializer() != null) {
                 defn.initialize();

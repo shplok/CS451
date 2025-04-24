@@ -1,7 +1,9 @@
 package jminusminus;
 
 import static jminusminus.CLConstants.ARETURN;
+import static jminusminus.CLConstants.DRETURN;
 import static jminusminus.CLConstants.IRETURN;
+import static jminusminus.CLConstants.LRETURN;
 import static jminusminus.CLConstants.RETURN;
 
 /**
@@ -62,6 +64,10 @@ class JReturnStatement extends JStatement {
             expr.codegen(output);
             if (expr.type() == Type.INT || expr.type() == Type.BOOLEAN || expr.type() == Type.CHAR) {
                 output.addNoArgInstruction(IRETURN);
+            } else if (expr.type() == Type.LONG) {
+                output.addNoArgInstruction(LRETURN);
+            } else if (expr.type() == Type.DOUBLE) {
+                output.addNoArgInstruction(DRETURN);
             } else {
                 output.addNoArgInstruction(ARETURN);
             }

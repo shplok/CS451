@@ -4,8 +4,12 @@ import java.util.ArrayList;
 
 import static jminusminus.CLConstants.ACONST_NULL;
 import static jminusminus.CLConstants.ARETURN;
+import static jminusminus.CLConstants.DCONST_0;
+import static jminusminus.CLConstants.DRETURN;
 import static jminusminus.CLConstants.ICONST_0;
 import static jminusminus.CLConstants.IRETURN;
+import static jminusminus.CLConstants.LCONST_0;
+import static jminusminus.CLConstants.LRETURN;
 import static jminusminus.CLConstants.RETURN;
 
 /**
@@ -135,19 +139,25 @@ class JMethodDeclaration extends JAST implements JMember {
     public JAST analyze(Context context) {
         MethodContext methodContext = new MethodContext(context, isStatic, returnType);
         this.context = methodContext;
-
+    
         if (!isStatic) {
             // Offset 0 is used to address "this".
             this.context.nextOffset();
         }
-
+    
         // Declare the parameters. We consider a formal parameter to be always initialized, via a method call.
         for (JFormalParameter param : params) {
             LocalVariableDefn defn = new LocalVariableDefn(param.type(), this.context.nextOffset());
             defn.initialize();
+            
+            // Skip an extra offset for long and double types BEFORE adding to context
+            if (param.type() == Type.LONG || param.type() == Type.DOUBLE) {
+                this.context.nextOffset();
+            }
+            
             this.context.addEntry(param.line(), param.name(), defn);
         }
-
+    
         if (body != null) {
             body = body.analyze(this.context);
             if (returnType != Type.VOID && !methodContext.methodHasReturn()) {
@@ -155,6 +165,7 @@ class JMethodDeclaration extends JAST implements JMember {
             }
         }
         return this;
+    
     }
 
     /**
@@ -172,6 +183,12 @@ class JMethodDeclaration extends JAST implements JMember {
         } else if (returnType == Type.INT || returnType == Type.BOOLEAN || returnType == Type.CHAR) {
             partial.addNoArgInstruction(ICONST_0);
             partial.addNoArgInstruction(IRETURN);
+        } else if (returnType == Type.LONG) {
+            partial.addNoArgInstruction(LCONST_0);
+            partial.addNoArgInstruction(LRETURN);
+        } else if (returnType == Type.DOUBLE) {
+            partial.addNoArgInstruction(DCONST_0);
+            partial.addNoArgInstruction(DRETURN);
         } else {
             partial.addNoArgInstruction(ACONST_NULL);
             partial.addNoArgInstruction(ARETURN);

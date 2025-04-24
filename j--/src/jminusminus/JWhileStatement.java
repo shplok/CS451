@@ -12,6 +12,16 @@ class JWhileStatement extends JStatement {
     // Body.
     private JStatement body;
 
+    protected boolean hasBreak;
+
+    protected String breakLabel;
+
+    protected boolean hasContinue;
+
+    protected String continueLabel;
+
+
+
     /**
      * Constructs an AST node for a while-statement.
      *
@@ -23,15 +33,23 @@ class JWhileStatement extends JStatement {
         super(line);
         this.condition = condition;
         this.body = body;
+        this.hasBreak = false;
+        this.breakLabel = null;
     }
 
     /**
      * {@inheritDoc}
      */
     public JWhileStatement analyze(Context context) {
+
+        JMember.enclosingStatement.push(this);
+
         condition = condition.analyze(context);
         condition.type().mustMatchExpected(line(), Type.BOOLEAN);
         body = (JStatement) body.analyze(context);
+
+        JMember.enclosingStatement.pop();
+
         return this;
     }
 
@@ -40,12 +58,33 @@ class JWhileStatement extends JStatement {
      */
     public void codegen(CLEmitter output) {
         String testLabel = output.createLabel();
-        String endLabel = output.createLabel();
+    
+        // Set continueLabel to an appropriate label if hasContinue is true
+        if (hasContinue) {
+            continueLabel = testLabel; // In while loops, continue goes back to the test
+        } else {
+            continueLabel = testLabel; // Create it anyway, same as test label
+        }
+        
+        // Set breakLabel to an appropriate label if hasBreak is true
+        if (hasBreak) {
+            breakLabel = output.createLabel();
+        } else {
+            breakLabel = output.createLabel(); // Still need a label for loop exit
+        }
+        
+        // Mark where we test the condition
         output.addLabel(testLabel);
-        condition.codegen(output, endLabel, false);
+        condition.codegen(output, breakLabel, false);
+        
+        // Generate code for the body
         body.codegen(output);
+        
+        // Jump back to test condition
         output.addBranchInstruction(GOTO, testLabel);
-        output.addLabel(endLabel);
+        
+        // Add the break label
+        output.addLabel(breakLabel);
     }
 
     /**

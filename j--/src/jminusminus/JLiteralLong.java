@@ -1,5 +1,8 @@
 package jminusminus;
 
+import static jminusminus.CLConstants.LCONST_0;
+import static jminusminus.CLConstants.LCONST_1;
+
 /**
  * The AST node for a long literal.
  */
@@ -31,7 +34,7 @@ class JLiteralLong extends JExpression {
      * {@inheritDoc}
      */
     public JExpression analyze(Context context) {
-        // TODO
+        type = Type.LONG;
         return this;
     }
 
@@ -39,7 +42,14 @@ class JLiteralLong extends JExpression {
      * {@inheritDoc}
      */
     public void codegen(CLEmitter output) {
-        // TODO
+        int length = text.length();
+        long l = Long.parseLong(text.substring(0, length - 1));
+        if (l == 0L)
+            output.addNoArgInstruction(LCONST_0);
+        else if (l == 1L)
+            output.addNoArgInstruction(LCONST_1);
+        else
+            output.addLDCInstruction(l);
     }
 
     /**
